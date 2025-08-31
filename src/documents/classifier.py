@@ -53,8 +53,24 @@ class ClassifierModelCorruptError(Exception):
     pass
 
 
+def _model_cache_token() -> tuple[str, int, int]:
+    p = Path(settings.MODEL_FILE)
+    if p.exists():
+        try:
+            st = p.stat()
+            return (str(p), int(st.st_mtime), int(st.st_size))
+        except OSError:
+            return (str(p), 0, 0)
+    return (str(p), 0, 0)
+
+
 @lru_cache(maxsize=1)
-def load_classifier(*, raise_exception: bool = False) -> DocumentClassifier | None:
+def _load_classifier_cached(
+    token: tuple[str, int, int],
+    *,
+    raise_exception: bool = False,
+) -> DocumentClassifier | None:
+    # token used only for cache key; logic depends on current settings
     if not settings.MODEL_FILE.is_file():
         logger.debug(
             "Document classification model does not exist (yet), not "
@@ -65,20 +81,23 @@ def load_classifier(*, raise_exception: bool = False) -> DocumentClassifier | No
     classifier = DocumentClassifier()
     try:
         classifier.load()
-
     except IncompatibleClassifierVersionError as e:
         logger.info(f"Classifier version incompatible: {e.message}, will re-train")
-        Path(settings.MODEL_FILE).unlink()
+        try:
+            Path(settings.MODEL_FILE).unlink()
+        except Exception:
+            pass
         classifier = None
         if raise_exception:
             raise e
     except ClassifierModelCorruptError as e:
-        # there's something wrong with the model file.
         logger.exception(
-            "Unrecoverable error while loading document "
-            "classification model, deleting model file.",
+            "Unrecoverable error while loading document classification model, deleting model file.",
         )
-        Path(settings.MODEL_FILE).unlink
+        try:
+            Path(settings.MODEL_FILE).unlink()
+        except Exception:
+            pass
         classifier = None
         if raise_exception:
             raise e
@@ -94,6 +113,11 @@ def load_classifier(*, raise_exception: bool = False) -> DocumentClassifier | No
             raise e
 
     return classifier
+
+
+def load_classifier(*, raise_exception: bool = False) -> DocumentClassifier | None:
+    token = _model_cache_token()
+    return _load_classifier_cached(token, raise_exception=raise_exception)
 
 
 class DocumentClassifier:
@@ -223,6 +247,11 @@ class DocumentClassifier:
         joblib.dump(state, target_file_temp, compress=3)
 
         target_file_temp.rename(target_file)
+        # Invalidate cached classifier loader so subsequent calls see the new file
+        try:
+            _load_classifier_cached.cache_clear()
+        except Exception:
+            pass
 
     def train(self) -> bool:
         # Get non-inbox documents
