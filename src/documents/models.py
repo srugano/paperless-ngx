@@ -21,7 +21,7 @@ from django.db.models import Case
 from django.db.models.functions import Cast
 from django.db.models.functions import Substr
 from django_softdelete.models import SoftDeleteModel
-
+from pgvector.django import VectorField
 from documents.data_models import DocumentSource
 from documents.parsers import get_default_file_extension
 
@@ -288,6 +288,7 @@ class Document(SoftDeleteModel, ModelWithOwner):
             "The position of this document in your physical document archive.",
         ),
     )
+    embedding = VectorField(dimensions=512, null=True, blank=True, help_text=_("The embedding vector for the document."))
 
     class Meta:
         ordering = ("-created",)
