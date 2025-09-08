@@ -126,23 +126,11 @@ class TestDecryptDocuments(FileSystemAssertsMixin, TestCase):
         )
 
         shutil.copy(
-            (
-                Path(__file__).parent
-                / "samples"
-                / "documents"
-                / "originals"
-                / "0000004.pdf.gpg"
-            ),
+            (Path(__file__).parent / "samples" / "documents" / "originals" / "0000004.pdf.gpg"),
             originals_dir / "0000004.pdf.gpg",
         )
         shutil.copy(
-            (
-                Path(__file__).parent
-                / "samples"
-                / "documents"
-                / "thumbnails"
-                / "0000004.webp.gpg"
-            ),
+            (Path(__file__).parent / "samples" / "documents" / "thumbnails" / "0000004.webp.gpg"),
             thumb_dir / f"{doc.id:07}.webp.gpg",
         )
 

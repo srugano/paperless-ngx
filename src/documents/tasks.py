@@ -80,9 +80,7 @@ def index_reindex(*, progress_bar_disable=False):
 @shared_task
 def train_classifier(*, scheduled=True):
     task = PaperlessTask.objects.create(
-        type=PaperlessTask.TaskType.SCHEDULED_TASK
-        if scheduled
-        else PaperlessTask.TaskType.MANUAL_TASK,
+        type=PaperlessTask.TaskType.SCHEDULED_TASK if scheduled else PaperlessTask.TaskType.MANUAL_TASK,
         task_id=uuid.uuid4(),
         task_name=PaperlessTask.TaskName.TRAIN_CLASSIFIER,
         status=states.STARTED,
@@ -215,12 +213,11 @@ def sanity_check(*, scheduled=True, raise_on_error=True):
         if raise_on_error:
             raise SanityCheckFailedException(message)
         return message
-    elif messages.has_warning:
+    if messages.has_warning:
         return "Sanity check exited with warnings. See log."
-    elif len(messages) > 0:
+    if len(messages) > 0:
         return "Sanity check exited with infos. See log."
-    else:
-        return "No issues detected."
+    return "No issues detected."
 
 
 @shared_task
@@ -257,8 +254,7 @@ def update_document_content_maybe_archive_file(document_id):
 
     if not parser_class:
         logger.error(
-            f"No parser found for mime type {mime_type}, cannot "
-            f"archive document {document} (ID: {document_id})",
+            f"No parser found for mime type {mime_type}, cannot archive document {document} (ID: {document_id})",
         )
         return
 

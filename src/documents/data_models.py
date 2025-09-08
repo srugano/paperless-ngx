@@ -113,24 +113,15 @@ class DocumentMetadataOverrides:
                 only_with_perms_in=["change_document"],
             ).values_list("id", flat=True),
         )
-        overrides.custom_fields = {
-            custom_field.id: custom_field.value
-            for custom_field in doc.custom_fields.all()
-        }
+        overrides.custom_fields = {custom_field.id: custom_field.value for custom_field in doc.custom_fields.all()}
 
         groups_with_perms = get_groups_with_perms(
             doc,
             attach_perms=True,
         )
-        overrides.view_groups = [
-            group.id
-            for group in groups_with_perms
-            if "view_document" in groups_with_perms[group]
-        ]
+        overrides.view_groups = [group.id for group in groups_with_perms if "view_document" in groups_with_perms[group]]
         overrides.change_groups = [
-            group.id
-            for group in groups_with_perms
-            if "change_document" in groups_with_perms[group]
+            group.id for group in groups_with_perms if "change_document" in groups_with_perms[group]
         ]
 
         return overrides

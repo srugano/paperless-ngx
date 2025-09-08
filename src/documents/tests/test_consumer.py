@@ -39,7 +39,7 @@ class _BaseTestParser(DocumentParser):
         """
         This parser does not implement additional settings yet
         """
-        return None
+        return
 
 
 class DummyParser(_BaseTestParser):
@@ -100,16 +100,14 @@ def fake_magic_from_file(file, *, mime=False):
             return "application/octet-stream"
         if filepath.suffix == ".pdf":
             return "application/pdf"
-        elif filepath.suffix == ".png":
+        if filepath.suffix == ".png":
             return "image/png"
-        elif filepath.suffix == ".webp":
+        if filepath.suffix == ".webp":
             return "image/webp"
-        elif filepath.suffix == ".eml":
+        if filepath.suffix == ".eml":
             return "message/rfc822"
-        else:
-            return "unknown"
-    else:
-        return "A verbose string that describes the contents of the file"
+        return "unknown"
+    return "A verbose string that describes the contents of the file"
 
 
 @mock.patch("documents.consumer.magic.from_file", fake_magic_from_file)
@@ -176,33 +174,19 @@ class TestConsumer(
         self.addCleanup(patcher.stop)
 
     def get_test_file(self):
-        src = (
-            Path(__file__).parent
-            / "samples"
-            / "documents"
-            / "originals"
-            / "0000001.pdf"
-        )
+        src = Path(__file__).parent / "samples" / "documents" / "originals" / "0000001.pdf"
         dst = self.dirs.scratch_dir / "sample.pdf"
         shutil.copy(src, dst)
         return dst
 
     def get_test_file2(self):
-        src = (
-            Path(__file__).parent
-            / "samples"
-            / "documents"
-            / "originals"
-            / "0000002.pdf"
-        )
+        src = Path(__file__).parent / "samples" / "documents" / "originals" / "0000002.pdf"
         dst = self.dirs.scratch_dir / "sample2.pdf"
         shutil.copy(src, dst)
         return dst
 
     def get_test_archive_file(self):
-        src = (
-            Path(__file__).parent / "samples" / "documents" / "archive" / "0000001.pdf"
-        )
+        src = Path(__file__).parent / "samples" / "documents" / "archive" / "0000001.pdf"
         dst = self.dirs.scratch_dir / "sample_archive.pdf"
         shutil.copy(src, dst)
         return dst
@@ -403,9 +387,7 @@ class TestConsumer(
 
             document = Document.objects.first()
 
-        fields_used = [
-            field_instance.field for field_instance in document.custom_fields.all()
-        ]
+        fields_used = [field_instance.field for field_instance in document.custom_fields.all()]
         self.assertIn(cf1, fields_used)
         self.assertNotIn(cf2, fields_used)
         self.assertIn(cf3, fields_used)
@@ -866,10 +848,7 @@ class TestConsumer(
         )
         with self.get_consumer(
             filepath=(
-                Path(__file__).parent.parent.parent
-                / Path("paperless_mail")
-                / Path("tests")
-                / Path("samples")
+                Path(__file__).parent.parent.parent / Path("paperless_mail") / Path("tests") / Path("samples")
             ).resolve()
             / "html.eml",
             source=DocumentSource.MailFetch,
@@ -901,13 +880,7 @@ class TestConsumerCreatedDate(DirectoriesMixin, GetConsumerMixin, TestCase):
         THEN:
             - Should parse the date from the file content
         """
-        src = (
-            Path(__file__).parent
-            / "samples"
-            / "documents"
-            / "originals"
-            / "0000005.pdf"
-        )
+        src = Path(__file__).parent / "samples" / "documents" / "originals" / "0000005.pdf"
         dst = self.dirs.scratch_dir / "sample.pdf"
         shutil.copy(src, dst)
 
@@ -931,13 +904,7 @@ class TestConsumerCreatedDate(DirectoriesMixin, GetConsumerMixin, TestCase):
         THEN:
             - Should parse the date from the filename
         """
-        src = (
-            Path(__file__).parent
-            / "samples"
-            / "documents"
-            / "originals"
-            / "0000005.pdf"
-        )
+        src = Path(__file__).parent / "samples" / "documents" / "originals" / "0000005.pdf"
         dst = self.dirs.scratch_dir / "Scan - 2022-02-01.pdf"
         shutil.copy(src, dst)
 
@@ -961,13 +928,7 @@ class TestConsumerCreatedDate(DirectoriesMixin, GetConsumerMixin, TestCase):
         THEN:
             - Should parse the date from the content
         """
-        src = (
-            Path(__file__).parent
-            / "samples"
-            / "documents"
-            / "originals"
-            / "0000005.pdf"
-        )
+        src = Path(__file__).parent / "samples" / "documents" / "originals" / "0000005.pdf"
         dst = self.dirs.scratch_dir / "Scan - 2022-02-01.pdf"
         shutil.copy(src, dst)
 
@@ -993,13 +954,7 @@ class TestConsumerCreatedDate(DirectoriesMixin, GetConsumerMixin, TestCase):
         THEN:
             - Should parse the date from the filename
         """
-        src = (
-            Path(__file__).parent
-            / "samples"
-            / "documents"
-            / "originals"
-            / "0000006.pdf"
-        )
+        src = Path(__file__).parent / "samples" / "documents" / "originals" / "0000006.pdf"
         dst = self.dirs.scratch_dir / "0000006.pdf"
         shutil.copy(src, dst)
 
@@ -1017,13 +972,7 @@ class TestConsumerCreatedDate(DirectoriesMixin, GetConsumerMixin, TestCase):
 class PreConsumeTestCase(DirectoriesMixin, GetConsumerMixin, TestCase):
     def setUp(self) -> None:
         super().setUp()
-        src = (
-            Path(__file__).parent
-            / "samples"
-            / "documents"
-            / "originals"
-            / "0000005.pdf"
-        )
+        src = Path(__file__).parent / "samples" / "documents" / "originals" / "0000005.pdf"
         self.test_file = self.dirs.scratch_dir / "sample.pdf"
         shutil.copy(src, self.test_file)
 
@@ -1128,13 +1077,7 @@ class PreConsumeTestCase(DirectoriesMixin, GetConsumerMixin, TestCase):
 class PostConsumeTestCase(DirectoriesMixin, GetConsumerMixin, TestCase):
     def setUp(self) -> None:
         super().setUp()
-        src = (
-            Path(__file__).parent
-            / "samples"
-            / "documents"
-            / "originals"
-            / "0000005.pdf"
-        )
+        src = Path(__file__).parent / "samples" / "documents" / "originals" / "0000005.pdf"
         self.test_file = self.dirs.scratch_dir / "sample.pdf"
         shutil.copy(src, self.test_file)
 

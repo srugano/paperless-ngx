@@ -22,9 +22,7 @@ migration_1037_obj = importlib.import_module(
 )
 @mock.patch(f"{__name__}.migration_1037_obj.run_convert")
 class TestMigrateToEncrytpedWebPThumbnails(TestMigrations):
-    migrate_from = (
-        "1022_paperlesstask_squashed_1036_alter_savedviewfilterrule_rule_type"
-    )
+    migrate_from = "1022_paperlesstask_squashed_1036_alter_savedviewfilterrule_rule_type"
     migrate_to = "1037_webp_encrypted_thumbnail_conversion"
     auto_migrate = False
 

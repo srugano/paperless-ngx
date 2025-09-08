@@ -138,9 +138,7 @@ class TestTikaParser:
         parts = request.content.split(f"--{boundary}".encode())
 
         form_field_found = any(
-            f'name="{expected_field_name}"'.encode() in part
-            and expected_form_value.encode() in part
-            for part in parts
+            f'name="{expected_field_name}"'.encode() in part and expected_form_value.encode() in part for part in parts
         )
 
         assert form_field_found

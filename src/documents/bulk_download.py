@@ -15,9 +15,7 @@ class BulkArchiveStrategy:
     def __init__(self, zipf: ZipFile, *, follow_formatting: bool = False) -> None:
         self.zipf: ZipFile = zipf
         if follow_formatting:
-            self.make_unique_filename: Callable[..., Path | str] = (
-                self._formatted_filepath
-            )
+            self.make_unique_filename: Callable[..., Path | str] = self._formatted_filepath
         else:
             self.make_unique_filename = self._filename_only
 

@@ -108,8 +108,7 @@ def _convert_encrypted_thumbnails_to_webp(apps, schema_editor) -> None:
 
             if not passphrase:
                 raise Exception(
-                    "Passphrase not defined, encrypted thumbnails cannot be migrated"
-                    "without this",
+                    "Passphrase not defined, encrypted thumbnails cannot be migratedwithout this",
                 )
 
             for file in Path(settings.THUMBNAIL_DIR).glob("*.png.gpg"):
@@ -121,9 +120,7 @@ def _convert_encrypted_thumbnails_to_webp(apps, schema_editor) -> None:
                 ).name
 
                 # Create the expected output filename in the tempdir
-                converted_thumbnail: Path = (
-                    Path(tempdir) / Path(converted_thumbnail_name)
-                ).resolve()
+                converted_thumbnail: Path = (Path(tempdir) / Path(converted_thumbnail_name)).resolve()
 
                 # Package up the necessary info
                 work_packages.append(

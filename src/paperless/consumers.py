@@ -19,20 +19,17 @@ class StatusConsumer(WebsocketConsumer):
             user.is_superuser
             or user.id == owner_id
             or user.id in users_can_view
-            or any(
-                user.groups.filter(pk=group_id).exists() for group_id in groups_can_view
-            )
+            or any(user.groups.filter(pk=group_id).exists() for group_id in groups_can_view)
         )
 
     def connect(self):
         if not self._authenticated():
             raise DenyConnection
-        else:
-            async_to_sync(self.channel_layer.group_add)(
-                "status_updates",
-                self.channel_name,
-            )
-            raise AcceptConnection
+        async_to_sync(self.channel_layer.group_add)(
+            "status_updates",
+            self.channel_name,
+        )
+        raise AcceptConnection
 
     def disconnect(self, close_code):
         async_to_sync(self.channel_layer.group_discard)(

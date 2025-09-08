@@ -15,6 +15,7 @@ class Command(LoadDataCommand):  # pragma: no cover
         self.compression_formats["stdin"] = (lambda x, y: sys.stdin, None)
         if fixture_name == "-":
             return "-", "json", "stdin"
+        return None
 
     def find_fixtures(self, fixture_label):
         if fixture_label == "-":

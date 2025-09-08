@@ -43,9 +43,7 @@ def wait(redis_url: str, retry_count: int, retry_sleep: int) -> None:
                 break
             except Exception as e:
                 click.echo(
-                    f"Redis ping #{attempt} failed.\n"
-                    f"Error: {e!s}.\n"
-                    f"Waiting {retry_sleep}s",
+                    f"Redis ping #{attempt} failed.\nError: {e!s}.\nWaiting {retry_sleep}s",
                 )
                 time.sleep(retry_sleep)
                 attempt += 1

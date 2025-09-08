@@ -57,10 +57,7 @@ def disable_signal(sig, receiver, sender) -> Generator:
 
 
 class Command(CryptMixin, BaseCommand):
-    help = (
-        "Using a manifest.json file, load the data from there, and import the "
-        "documents it refers to."
-    )
+    help = "Using a manifest.json file, load the data from there, and import the documents it refers to."
 
     def add_arguments(self, parser) -> None:
         parser.add_argument("source")
@@ -110,10 +107,7 @@ class Command(CryptMixin, BaseCommand):
                             )
                             break
             # But existing users or other data still matters in a data only
-            if (
-                User.objects.exclude(username__in=["consumer", "AnonymousUser"]).count()
-                != 0
-            ):
+            if User.objects.exclude(username__in=["consumer", "AnonymousUser"]).count() != 0:
                 self.stdout.write(
                     self.style.WARNING(
                         "Found existing user(s), this might indicate a non-empty installation",
@@ -178,7 +172,7 @@ class Command(CryptMixin, BaseCommand):
                     raise CommandError(
                         "No passphrase was given, but this export contains encrypted fields",
                     )
-                elif EXPORTER_CRYPTO_SETTINGS_NAME in data:
+                if EXPORTER_CRYPTO_SETTINGS_NAME in data:
                     self.load_crypt_params(data)
         elif version_path.exists():
             with version_path.open() as infile:
@@ -207,23 +201,17 @@ class Command(CryptMixin, BaseCommand):
                     call_command("loaddata", manifest_path)
         except (FieldDoesNotExist, DeserializationError, IntegrityError) as e:
             self.stdout.write(self.style.ERROR("Database import failed"))
-            if (
-                self.version is not None
-                and self.version != version.__full_version_str__
-            ):  # pragma: no cover
+            if self.version is not None and self.version != version.__full_version_str__:  # pragma: no cover
                 self.stdout.write(
                     self.style.ERROR(
-                        "Version mismatch: "
-                        f"Currently {version.__full_version_str__},"
-                        f" importing {self.version}",
+                        f"Version mismatch: Currently {version.__full_version_str__}, importing {self.version}",
                     ),
                 )
                 raise e
-            else:
-                self.stdout.write(
-                    self.style.ERROR("No version information present"),
-                )
-                raise e
+            self.stdout.write(
+                self.style.ERROR("No version information present"),
+            )
+            raise e
 
     def handle(self, *args, **options) -> None:
         logging.getLogger().handlers[0].level = logging.ERROR
@@ -308,16 +296,14 @@ class Command(CryptMixin, BaseCommand):
         def check_document_validity(document_record: dict) -> None:
             if EXPORTER_FILE_NAME not in document_record:
                 raise CommandError(
-                    "The manifest file contains a record which does not "
-                    "refer to an actual document file.",
+                    "The manifest file contains a record which does not refer to an actual document file.",
                 )
 
             doc_file = document_record[EXPORTER_FILE_NAME]
             doc_path: Path = self.source / doc_file
             if not doc_path.exists():
                 raise CommandError(
-                    f'The manifest file refers to "{doc_file}" which does not '
-                    "appear to be in the source directory.",
+                    f'The manifest file refers to "{doc_file}" which does not appear to be in the source directory.',
                 )
             try:
                 with doc_path.open(mode="rb"):

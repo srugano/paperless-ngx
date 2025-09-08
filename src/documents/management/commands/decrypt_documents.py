@@ -9,17 +9,12 @@ from paperless.db import GnuPG
 
 
 class Command(BaseCommand):
-    help = (
-        "This is how you migrate your stored documents from an encrypted "
-        "state to an unencrypted one (or vice-versa)"
-    )
+    help = "This is how you migrate your stored documents from an encrypted state to an unencrypted one (or vice-versa)"
 
     def add_arguments(self, parser) -> None:
         parser.add_argument(
             "--passphrase",
-            help=(
-                "If PAPERLESS_PASSPHRASE isn't set already, you need to specify it here"
-            ),
+            help=("If PAPERLESS_PASSPHRASE isn't set already, you need to specify it here"),
         )
 
     def handle(self, *args, **options) -> None:
@@ -72,8 +67,7 @@ class Command(BaseCommand):
 
             if not ext == ".gpg":
                 raise CommandError(
-                    f"Abort: encrypted file {document.source_path} does not "
-                    f"end with .gpg",
+                    f"Abort: encrypted file {document.source_path} does not end with .gpg",
                 )
 
             document.filename = Path(document.filename).stem

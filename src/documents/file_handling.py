@@ -54,9 +54,7 @@ def generate_unique_filename(doc, *, archive_filename=False) -> Path:
 
     """
     if archive_filename:
-        old_filename: Path | None = (
-            Path(doc.archive_filename) if doc.archive_filename else None
-        )
+        old_filename: Path | None = Path(doc.archive_filename) if doc.archive_filename else None
         root = settings.ARCHIVE_DIR
     else:
         old_filename = Path(doc.filename) if doc.filename else None
@@ -123,12 +121,10 @@ def generate_filename(
             rendered_filename = rendered_filename.replace("-none-", "")
             rendered_filename = rendered_filename.strip(os.sep)
 
-        rendered_filename = rendered_filename.replace(
+        return rendered_filename.replace(
             "-none-",
             "none",
         )  # backward compatibility
-
-        return rendered_filename
 
     # Determine the source of the format string
     if doc.storage_path is not None:

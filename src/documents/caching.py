@@ -101,9 +101,7 @@ class StoredLRUCache(LRUCache):
         """
         serialized_data = self._backend.get(self._backend_key)
         try:
-            self._data = (
-                pickle.loads(serialized_data) if serialized_data else OrderedDict()
-            )
+            self._data = pickle.loads(serialized_data) if serialized_data else OrderedDict()
         except pickle.PickleError:
             logger.warning(
                 "Cache exists in backend but could not be read (possibly invalid format)",
@@ -149,13 +147,12 @@ def get_suggestion_cache(document_id: int) -> SuggestionCacheData | None:
             and cache_hits[CLASSIFIER_VERSION_KEY] == DocumentClassifier.FORMAT_VERSION
             and cache_hits[CLASSIFIER_VERSION_KEY] == doc_suggestions.classifier_version
         ) and (
-            CLASSIFIER_HASH_KEY in cache_hits
-            and cache_hits[CLASSIFIER_HASH_KEY] == doc_suggestions.classifier_hash
+            CLASSIFIER_HASH_KEY in cache_hits and cache_hits[CLASSIFIER_HASH_KEY] == doc_suggestions.classifier_hash
         ):
             return doc_suggestions
-        else:  # pragma: no cover
-            # Remove the key because something didn't match
-            cache.delete(doc_key)
+        # pragma: no cover
+        # Remove the key because something didn't match
+        cache.delete(doc_key)
     return None
 
 
@@ -231,9 +228,9 @@ def get_metadata_cache(document_id: int) -> MetadataCacheData | None:
                 # Refresh cache
                 cache.touch(doc_key, CACHE_50_MINUTES)
                 return doc_metadata
-            else:  # pragma: no cover
-                # Something didn't match, delete the key
-                cache.delete(doc_key)
+            # pragma: no cover
+            # Something didn't match, delete the key
+            cache.delete(doc_key)
         except Document.DoesNotExist:  # pragma: no cover
             # Basically impossible, but the key existed, but the Document didn't
             cache.delete(doc_key)

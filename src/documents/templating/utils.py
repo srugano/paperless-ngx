@@ -19,6 +19,4 @@ def convert_format_str_to_template_format(old_format: str) -> str:
         return f"{{{{ {variable} }}}}"  # Convert to {{ variable }}
 
     # Apply the substitution
-    converted_format = re.sub(pattern, replace_with_django, old_format)
-
-    return converted_format
+    return re.sub(pattern, replace_with_django, old_format)

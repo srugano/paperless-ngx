@@ -27,20 +27,14 @@ def migrate_date(apps, schema_editor):
         if len(updates) >= batch_size:
             Document.objects.bulk_update(updates, ["created_date"])
             total_updated += len(updates)
-            print(
-                f"[1067_alter_document_created] {total_updated} of {total_checked} processed...",
-            )
             updates.clear()
 
     if updates:
         Document.objects.bulk_update(updates, ["created_date"])
         total_updated += len(updates)
-        print(
-            f"[1067_alter_document_created] {total_updated} of {total_checked} processed...",
-        )
 
     if total_checked > 0:
-        print(f"[1067_alter_document_created] completed for {total_checked} documents.")
+        pass
 
 
 class Migration(migrations.Migration):

@@ -169,13 +169,12 @@ class TagMailAction(BaseMailAction):
         # AppleMail: We only need to check if mails are \Flagged
         if self.color:
             return {"flagged": False}
-        elif self.keyword:
+        if self.keyword:
             if self.supports_gmail_labels:
                 return AND(NOT(gmail_label=self.keyword), no_keyword=self.keyword)
-            else:
-                return {"no_keyword": self.keyword}
-        else:  # pragma: no cover
-            raise ValueError("This should never happen.")
+            return {"no_keyword": self.keyword}
+        # pragma: no cover
+        raise ValueError("This should never happen.")
 
     def post_consume(self, M: MailBox, message_uid: str, parameter: str):
         if self.supports_gmail_labels:
@@ -362,19 +361,18 @@ def get_rule_action(rule: MailRule, *, supports_gmail_labels: bool) -> BaseMailA
 
     if rule.action == MailRule.MailAction.FLAG:
         return FlagMailAction()
-    elif rule.action == MailRule.MailAction.DELETE:
+    if rule.action == MailRule.MailAction.DELETE:
         return DeleteMailAction()
-    elif rule.action == MailRule.MailAction.MOVE:
+    if rule.action == MailRule.MailAction.MOVE:
         return MoveMailAction()
-    elif rule.action == MailRule.MailAction.MARK_READ:
+    if rule.action == MailRule.MailAction.MARK_READ:
         return MarkReadMailAction()
-    elif rule.action == MailRule.MailAction.TAG:
+    if rule.action == MailRule.MailAction.TAG:
         return TagMailAction(
             rule.action_parameter,
             supports_gmail_labels=supports_gmail_labels,
         )
-    else:
-        raise NotImplementedError("Unknown action.")  # pragma: no cover
+    raise NotImplementedError("Unknown action.")  # pragma: no cover
 
 
 def make_criterias(rule: MailRule, *, supports_gmail_labels: bool):
@@ -402,10 +400,8 @@ def make_criterias(rule: MailRule, *, supports_gmail_labels: bool):
     if isinstance(rule_query, dict):
         if len(rule_query) or criterias:
             return AND(**rule_query, **criterias)
-        else:
-            return "ALL"
-    else:
-        return AND(rule_query, **criterias)
+        return "ALL"
+    return AND(rule_query, **criterias)
 
 
 def get_mailbox(server, port, security) -> MailBox:
@@ -482,16 +478,15 @@ class MailAccountHandler(LoggingMixin):
         if rule.assign_title_from == MailRule.TitleSource.FROM_SUBJECT:
             return message.subject
 
-        elif rule.assign_title_from == MailRule.TitleSource.FROM_FILENAME:
+        if rule.assign_title_from == MailRule.TitleSource.FROM_FILENAME:
             return Path(att.filename).stem
 
-        elif rule.assign_title_from == MailRule.TitleSource.NONE:
+        if rule.assign_title_from == MailRule.TitleSource.NONE:
             return None
 
-        else:
-            raise NotImplementedError(
-                "Unknown title selector.",
-            )  # pragma: no cover
+        raise NotImplementedError(
+            "Unknown title selector.",
+        )  # pragma: no cover
 
     def _get_correspondent(
         self,
@@ -503,23 +498,21 @@ class MailAccountHandler(LoggingMixin):
         if c_from == MailRule.CorrespondentSource.FROM_NOTHING:
             return None
 
-        elif c_from == MailRule.CorrespondentSource.FROM_EMAIL:
+        if c_from == MailRule.CorrespondentSource.FROM_EMAIL:
             return self._correspondent_from_name(message.from_)
 
-        elif c_from == MailRule.CorrespondentSource.FROM_NAME:
+        if c_from == MailRule.CorrespondentSource.FROM_NAME:
             from_values = message.from_values
             if from_values is not None and len(from_values.name) > 0:
                 return self._correspondent_from_name(from_values.name)
-            else:
-                return self._correspondent_from_name(message.from_)
+            return self._correspondent_from_name(message.from_)
 
-        elif c_from == MailRule.CorrespondentSource.FROM_CUSTOM:
+        if c_from == MailRule.CorrespondentSource.FROM_CUSTOM:
             return rule.assign_correspondent
 
-        else:
-            raise NotImplementedError(
-                "Unknown correspondent selector",
-            )  # pragma: no cover
+        raise NotImplementedError(
+            "Unknown correspondent selector",
+        )  # pragma: no cover
 
     def handle_mail_account(self, account: MailAccount):
         """
@@ -537,11 +530,7 @@ class MailAccountHandler(LoggingMixin):
                 account.imap_port,
                 account.imap_security,
             ) as M:
-                if (
-                    account.is_token
-                    and account.expiration is not None
-                    and account.expiration < timezone.now()
-                ):
+                if account.is_token and account.expiration is not None and account.expiration < timezone.now():
                     manager = PaperlessMailOAuth2Manager()
                     if manager.refresh_account_oauth_token(account):
                         account.refresh_from_db()
@@ -613,13 +602,11 @@ class MailAccountHandler(LoggingMixin):
                     self.log.info(f"Located folder: {folder_info.name}")
             except Exception as e:
                 self.log.error(
-                    "Exception during folder listing, unable to provide list folders: "
-                    + str(e),
+                    "Exception during folder listing, unable to provide list folders: " + str(e),
                 )
 
             raise MailError(
-                f"Rule {rule}: Folder {folder} "
-                f"does not exist in account {rule.account}",
+                f"Rule {rule}: Folder {folder} does not exist in account {rule.account}",
             ) from err
 
         criterias = make_criterias(rule, supports_gmail_labels=supports_gmail_labels)
@@ -678,10 +665,7 @@ class MailAccountHandler(LoggingMixin):
 
         # Skip Message handling when only attachments are to be processed but
         # message doesn't have any.
-        if (
-            not message.attachments
-            and rule.consumption_scope == MailRule.ConsumptionScope.ATTACHMENTS_ONLY
-        ):
+        if not message.attachments and rule.consumption_scope == MailRule.ConsumptionScope.ATTACHMENTS_ONLY:
             return processed_elements
 
         self.log.debug(
@@ -723,9 +707,7 @@ class MailAccountHandler(LoggingMixin):
         filename: str,
     ) -> bool:
         if filter_attachment_filename_include:
-            filter_attachment_filename_inclusions = (
-                filter_attachment_filename_include.split(",")
-            )
+            filter_attachment_filename_inclusions = filter_attachment_filename_include.split(",")
 
             # Force the filename and pattern to the lowercase
             # as this is system dependent otherwise
@@ -742,9 +724,7 @@ class MailAccountHandler(LoggingMixin):
         filename: str,
     ) -> bool:
         if filter_attachment_filename_exclude:
-            filter_attachment_filename_exclusions = (
-                filter_attachment_filename_exclude.split(",")
-            )
+            filter_attachment_filename_exclusions = filter_attachment_filename_exclude.split(",")
 
             # Force the filename and pattern to the lowercase
             # as this is system dependent otherwise
@@ -768,8 +748,7 @@ class MailAccountHandler(LoggingMixin):
         for att in message.attachments:
             if (
                 att.content_disposition != "attachment"
-                and rule.attachment_type
-                == MailRule.AttachmentProcessing.ATTACHMENTS_ONLY
+                and rule.attachment_type == MailRule.AttachmentProcessing.ATTACHMENTS_ONLY
             ):
                 self.log.debug(
                     f"Rule {rule}: "
@@ -790,7 +769,7 @@ class MailAccountHandler(LoggingMixin):
                     f"does not match pattern {rule.filter_attachment_filename_include}",
                 )
                 continue
-            elif self.filename_exclusion_matches(
+            if self.filename_exclusion_matches(
                 rule.filter_attachment_filename_exclude,
                 att.filename,
             ):
@@ -845,11 +824,7 @@ class MailAccountHandler(LoggingMixin):
                     correspondent_id=correspondent.id if correspondent else None,
                     document_type_id=doc_type.id if doc_type else None,
                     tag_ids=tag_ids,
-                    owner_id=(
-                        rule.owner.id
-                        if (rule.assign_owner_from_rule and rule.owner)
-                        else None
-                    ),
+                    owner_id=(rule.owner.id if (rule.assign_owner_from_rule and rule.owner) else None),
                 )
 
                 consume_task = consume_file.s(
@@ -886,9 +861,7 @@ class MailAccountHandler(LoggingMixin):
                     folder=rule.folder,
                     uid=message.uid,
                     subject=message.subject,
-                    received=make_aware(message.date)
-                    if is_naive(message.date)
-                    else message.date,
+                    received=make_aware(message.date) if is_naive(message.date) else message.date,
                     status="PROCESSED_WO_CONSUMPTION",
                 )
 
@@ -931,9 +904,7 @@ class MailAccountHandler(LoggingMixin):
         correspondent = self._get_correspondent(message, rule)
 
         self.log.info(
-            f"Rule {rule}: "
-            f"Consuming eml from mail "
-            f"{message.subject} from {message.from_}",
+            f"Rule {rule}: Consuming eml from mail {message.subject} from {message.from_}",
         )
 
         input_doc = ConsumableDocument(
@@ -961,5 +932,4 @@ class MailAccountHandler(LoggingMixin):
             message=message,
         )
 
-        processed_elements = 1
-        return processed_elements
+        return 1

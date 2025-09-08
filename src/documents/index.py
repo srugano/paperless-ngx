@@ -8,7 +8,7 @@ from contextlib import contextmanager
 from datetime import datetime
 from datetime import time
 from datetime import timedelta
-from datetime import timezone
+from datetime import UTC
 from shutil import rmtree
 from typing import TYPE_CHECKING
 from typing import Literal
@@ -144,10 +144,7 @@ def update_document(writer: AsyncWriter, doc: Document) -> None:
         [str(f.field.id) for f in CustomFieldInstance.objects.filter(document=doc)],
     )
     asn: int | None = doc.archive_serial_number
-    if asn is not None and (
-        asn < Document.ARCHIVE_SERIAL_NUMBER_MIN
-        or asn > Document.ARCHIVE_SERIAL_NUMBER_MAX
-    ):
+    if asn is not None and (asn < Document.ARCHIVE_SERIAL_NUMBER_MIN or asn > Document.ARCHIVE_SERIAL_NUMBER_MAX):
         logger.error(
             f"Not indexing Archive Serial Number {asn} of document {doc.pk}. "
             f"ASN is out of range "
@@ -269,8 +266,7 @@ class DelayedQuery:
 
         if field not in sort_fields_map:
             return None, False
-        else:
-            return sort_fields_map[field], reverse
+        return sort_fields_map[field], reverse
 
     def __init__(
         self,
@@ -282,7 +278,7 @@ class DelayedQuery:
         self.searcher = searcher
         self.query_params = query_params
         self.page_size = page_size
-        self.saved_results = dict()
+        self.saved_results = {}
         self.first_score = None
         self.filter_queryset = filter_queryset
         self.suggested_correction = None
@@ -314,15 +310,13 @@ class DelayedQuery:
         if not self.first_score and len(page.results) > 0 and sortedby is None:
             self.first_score = page.results[0].score
 
-        page.results.top_n = list(
-            map(
-                lambda hit: (
-                    (hit[0] / self.first_score) if self.first_score else None,
-                    hit[1],
-                ),
-                page.results.top_n,
-            ),
-        )
+        page.results.top_n = [
+            (
+                (hit[0] / self.first_score) if self.first_score else None,
+                hit[1],
+            )
+            for hit in page.results.top_n
+        ]
 
         self.saved_results[item.start] = page
 
@@ -332,7 +326,7 @@ class DelayedQuery:
 class LocalDateParser(English):
     def reverse_timezone_offset(self, d):
         return (d.replace(tzinfo=django_timezone.get_current_timezone())).astimezone(
-            timezone.utc,
+            UTC,
         )
 
     def date_from(self, *args, **kwargs):
@@ -484,8 +478,8 @@ def rewrite_natural_date_keywords(query_string: str) -> str:
     def repl(m):
         field, keyword = m.group(1), m.group(2)
         start, end = ranges[keyword]
-        start_str = start.astimezone(timezone.utc).strftime("%Y%m%d%H%M%S")
-        end_str = end.astimezone(timezone.utc).strftime("%Y%m%d%H%M%S")
+        start_str = start.astimezone(UTC).strftime("%Y%m%d%H%M%S")
+        end_str = end.astimezone(UTC).strftime("%Y%m%d%H%M%S")
         return f"{field}:[{start_str} TO {end_str}]"
 
     return re.sub(pattern, repl, query_string)

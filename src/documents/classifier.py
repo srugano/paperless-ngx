@@ -29,9 +29,7 @@ from documents.models import MatchingModel
 
 logger = logging.getLogger("paperless.classifier")
 
-ADVANCED_TEXT_PROCESSING_ENABLED = (
-    settings.NLTK_LANGUAGE is not None and settings.NLTK_ENABLED
-)
+ADVANCED_TEXT_PROCESSING_ENABLED = settings.NLTK_LANGUAGE is not None and settings.NLTK_ENABLED
 
 read_cache = caches["read-cache"]
 
@@ -53,8 +51,7 @@ class ClassifierModelCorruptError(Exception):
 def load_classifier(*, raise_exception: bool = False) -> DocumentClassifier | None:
     if not settings.MODEL_FILE.is_file():
         logger.debug(
-            "Document classification model does not exist (yet), not "
-            "performing automatic matching.",
+            "Document classification model does not exist (yet), not performing automatic matching.",
         )
         return None
 
@@ -71,8 +68,7 @@ def load_classifier(*, raise_exception: bool = False) -> DocumentClassifier | No
     except ClassifierModelCorruptError as e:
         # there's something wrong with the model file.
         logger.exception(
-            "Unrecoverable error while loading document "
-            "classification model, deleting model file.",
+            "Unrecoverable error while loading document classification model, deleting model file.",
         )
         Path(settings.MODEL_FILE).unlink
         classifier = None
@@ -139,34 +135,30 @@ class DocumentClassifier:
                     raise IncompatibleClassifierVersionError(
                         "Cannot load classifier, incompatible versions.",
                     )
-                else:
-                    try:
-                        self.last_doc_change_time = pickle.load(f)
-                        self.last_auto_type_hash = pickle.load(f)
+                try:
+                    self.last_doc_change_time = pickle.load(f)
+                    self.last_auto_type_hash = pickle.load(f)
 
-                        self.data_vectorizer = pickle.load(f)
-                        self._update_data_vectorizer_hash()
-                        self.tags_binarizer = pickle.load(f)
+                    self.data_vectorizer = pickle.load(f)
+                    self._update_data_vectorizer_hash()
+                    self.tags_binarizer = pickle.load(f)
 
-                        self.tags_classifier = pickle.load(f)
-                        self.correspondent_classifier = pickle.load(f)
-                        self.document_type_classifier = pickle.load(f)
-                        self.storage_path_classifier = pickle.load(f)
-                    except Exception as err:
-                        raise ClassifierModelCorruptError from err
+                    self.tags_classifier = pickle.load(f)
+                    self.correspondent_classifier = pickle.load(f)
+                    self.document_type_classifier = pickle.load(f)
+                    self.storage_path_classifier = pickle.load(f)
+                except Exception as err:
+                    raise ClassifierModelCorruptError from err
 
             # Check for the warning about unpickling from differing versions
             # and consider it incompatible
             sk_learn_warning_url = (
-                "https://scikit-learn.org/stable/"
-                "model_persistence.html"
-                "#security-maintainability-limitations"
+                "https://scikit-learn.org/stable/model_persistence.html#security-maintainability-limitations"
             )
             for warning in w:
                 # The warning is inconsistent, the MLPClassifier is a specific warning, others have not updated yet
                 if issubclass(warning.category, InconsistentVersionWarning) or (
-                    issubclass(warning.category, UserWarning)
-                    and sk_learn_warning_url in str(warning.message)
+                    issubclass(warning.category, UserWarning) and sk_learn_warning_url in str(warning.message)
                 ):
                     raise IncompatibleClassifierVersionError("sklearn version update")
 
@@ -254,8 +246,7 @@ class DocumentClassifier:
         # New auto tags, types, correspondent, storage paths exist
         latest_doc_change = docs_queryset.latest("modified").modified
         if (
-            self.last_doc_change_time is not None
-            and self.last_doc_change_time >= latest_doc_change
+            self.last_doc_change_time is not None and self.last_doc_change_time >= latest_doc_change
         ) and self.last_auto_type_hash == hasher.digest():
             logger.info("No updates since last training")
             # Set the classifier information into the cache
@@ -320,9 +311,7 @@ class DocumentClassifier:
             if num_tags == 1:
                 # Special case where only one tag has auto:
                 # Fallback to binary classification.
-                labels_tags = [
-                    label[0] if len(label) == 1 else -1 for label in labels_tags
-                ]
+                labels_tags = [label[0] if len(label) == 1 else -1 for label in labels_tags]
                 self.tags_binarizer = LabelBinarizer()
                 labels_tags_vectorized: ndarray = self.tags_binarizer.fit_transform(
                     labels_tags,
@@ -421,15 +410,14 @@ class DocumentClassifier:
             cached = self._stem_cache.get(word)
             if cached is not None:
                 return cached
-            elif word in self._stop_words:
+            if word in self._stop_words:
                 return ""
             # Assumption: words that contain numbers are never stemmed
-            elif RE_DIGIT.search(word):
+            if RE_DIGIT.search(word):
                 return word
-            else:
-                result = self._stemmer.stem(word)
-                self._stem_cache.set(word, result)
-                return result
+            result = self._stemmer.stem(word)
+            self._stem_cache.set(word, result)
+            return result
 
         if shared_cache:
             self._stem_cache.load()
@@ -497,10 +485,8 @@ class DocumentClassifier:
             correspondent_id = self.correspondent_classifier.predict(X)
             if correspondent_id != -1:
                 return correspondent_id
-            else:
-                return None
-        else:
             return None
+        return None
 
     def predict_document_type(self, content: str) -> int | None:
         if self.document_type_classifier:
@@ -508,10 +494,8 @@ class DocumentClassifier:
             document_type_id = self.document_type_classifier.predict(X)
             if document_type_id != -1:
                 return document_type_id
-            else:
-                return None
-        else:
             return None
+        return None
 
     def predict_tags(self, content: str) -> list[int]:
         from sklearn.utils.multiclass import type_of_target
@@ -523,16 +507,14 @@ class DocumentClassifier:
             if type_of_target(y).startswith("multilabel"):
                 # the usual case when there are multiple tags.
                 return list(tags_ids)
-            elif type_of_target(y) == "binary" and tags_ids != -1:
+            if type_of_target(y) == "binary" and tags_ids != -1:
                 # This is for when we have binary classification with only one
                 # tag and the result is to assign this tag.
                 return [tags_ids]
-            else:
-                # Usually binary as well with -1 as the result, but we're
-                # going to catch everything else here as well.
-                return []
-        else:
+            # Usually binary as well with -1 as the result, but we're
+            # going to catch everything else here as well.
             return []
+        return []
 
     def predict_storage_path(self, content: str) -> int | None:
         if self.storage_path_classifier:
@@ -540,7 +522,5 @@ class DocumentClassifier:
             storage_path_id = self.storage_path_classifier.predict(X)
             if storage_path_id != -1:
                 return storage_path_id
-            else:
-                return None
-        else:
             return None
+        return None

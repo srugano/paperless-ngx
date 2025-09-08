@@ -13,11 +13,7 @@ def handle_failed_login(sender, credentials, request, **kwargs):
         meta=request.META,
     )
     username = credentials.get("username")
-    log_output = (
-        "No authentication provided"
-        if username is None
-        else f"Login failed for user `{username}`"
-    )
+    log_output = "No authentication provided" if username is None else f"Login failed for user `{username}`"
 
     if client_ip is None:
         log_output += ". Unable to determine IP address."

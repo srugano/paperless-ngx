@@ -33,17 +33,7 @@ class TestDate:
         assert date == datetime.datetime(2018, 2, 13, 0, 0, tzinfo=settings_timezone)
 
     def test_date_format_6(self):
-        text = (
-            "lorem ipsum\n"
-            "Wohnort\n"
-            "3100\n"
-            "IBAN\n"
-            "AT87 4534\n"
-            "1234\n"
-            "1234 5678\n"
-            "BIC\n"
-            "lorem ipsum"
-        )
+        text = "lorem ipsum\nWohnort\n3100\nIBAN\nAT87 4534\n1234\n1234 5678\nBIC\nlorem ipsum"
         assert parse_date("", text) is None
 
     def test_date_format_7(
@@ -62,18 +52,7 @@ class TestDate:
         settings_timezone: ZoneInfo,
     ):
         settings.DATE_PARSER_LANGUAGES = ["de"]
-        text = (
-            "lorem ipsum\n"
-            "Wohnort\n"
-            "3100\n"
-            "IBAN\n"
-            "AT87 4534\n"
-            "1234\n"
-            "1234 5678\n"
-            "BIC\n"
-            "lorem ipsum\n"
-            "März 2020"
-        )
+        text = "lorem ipsum\nWohnort\n3100\nIBAN\nAT87 4534\n1234\n1234 5678\nBIC\nlorem ipsum\nMärz 2020"
         assert parse_date("", text) == datetime.datetime(
             2020,
             3,

@@ -157,8 +157,7 @@ class UserViewSet(ModelViewSet):
         if authenticator is not None:
             delete_and_cleanup(request, authenticator)
             return Response(data=True)
-        else:
-            return HttpResponseNotFound("TOTP not found")
+        return HttpResponseNotFound("TOTP not found")
 
 
 class GroupViewSet(ModelViewSet):
@@ -299,8 +298,7 @@ class TOTPView(GenericAPIView):
         if authenticator is not None:
             delete_and_cleanup(request, authenticator)
             return Response(data=True)
-        else:
-            return HttpResponseNotFound("TOTP not found")
+        return HttpResponseNotFound("TOTP not found")
 
 
 @extend_schema_view(

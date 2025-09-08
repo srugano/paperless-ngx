@@ -118,14 +118,12 @@ def set_correspondent(
     if potential_count > 1:
         if use_first:
             logger.debug(
-                f"Detected {potential_count} potential correspondents, "
-                f"so we've opted for {selected}",
+                f"Detected {potential_count} potential correspondents, so we've opted for {selected}",
                 extra={"group": logging_group},
             )
         else:
             logger.debug(
-                f"Detected {potential_count} potential correspondents, "
-                f"not assigning any correspondent",
+                f"Detected {potential_count} potential correspondents, not assigning any correspondent",
                 extra={"group": logging_group},
             )
             return
@@ -175,14 +173,12 @@ def set_document_type(
     if potential_count > 1:
         if use_first:
             logger.info(
-                f"Detected {potential_count} potential document types, "
-                f"so we've opted for {selected}",
+                f"Detected {potential_count} potential document types, so we've opted for {selected}",
                 extra={"group": logging_group},
             )
         else:
             logger.info(
-                f"Detected {potential_count} potential document types, "
-                f"not assigning any document type",
+                f"Detected {potential_count} potential document types, not assigning any document type",
                 extra={"group": logging_group},
             )
             return
@@ -235,9 +231,7 @@ def set_tags(
 
     if suggest:
         extra_tags = current_tags - set(matched_tags)
-        extra_tags = [
-            t for t in extra_tags if t.matching_algorithm == MatchingModel.MATCH_AUTO
-        ]
+        extra_tags = [t for t in extra_tags if t.matching_algorithm == MatchingModel.MATCH_AUTO]
         if not relevant_tags and not extra_tags:
             return
         doc_str = style_func.SUCCESS(str(document))
@@ -291,14 +285,12 @@ def set_storage_path(
     if potential_count > 1:
         if use_first:
             logger.info(
-                f"Detected {potential_count} potential storage paths, "
-                f"so we've opted for {selected}",
+                f"Detected {potential_count} potential storage paths, so we've opted for {selected}",
                 extra={"group": logging_group},
             )
         else:
             logger.info(
-                f"Detected {potential_count} potential storage paths, "
-                f"not assigning any storage directory",
+                f"Detected {potential_count} potential storage paths, not assigning any storage directory",
                 extra={"group": logging_group},
             )
             return
@@ -349,8 +341,7 @@ def cleanup_document_deletion(sender, instance, **kwargs):
                 shutil.move(instance.source_path, new_file_path)
             except OSError as e:
                 logger.error(
-                    f"Failed to move {instance.source_path} to trash at "
-                    f"{new_file_path}: {e}. Skipping cleanup!",
+                    f"Failed to move {instance.source_path} to trash at {new_file_path}: {e}. Skipping cleanup!",
                 )
                 return
 
@@ -369,8 +360,7 @@ def cleanup_document_deletion(sender, instance, **kwargs):
                     logger.debug(f"Deleted file {filename}.")
                 except OSError as e:
                     logger.warning(
-                        f"While deleting document {instance!s}, the file "
-                        f"{filename} could not be deleted: {e}",
+                        f"While deleting document {instance!s}, the file {filename} could not be deleted: {e}",
                     )
             elif filename and not filename.is_file():
                 logger.warning(f"Expected {filename} to exist, but it did not")
@@ -542,14 +532,9 @@ def check_paths_and_prune_custom_fields(sender, instance: CustomField, **kwargs)
     2. If a 'Select' field option was removed, we need to nullify the custom field instances that have the option.
     """
     if (
-        instance.data_type == CustomField.FieldDataType.SELECT
-        and instance.fields.count() > 0
-        and instance.extra_data
+        instance.data_type == CustomField.FieldDataType.SELECT and instance.fields.count() > 0 and instance.extra_data
     ):  # Only select fields, for now
-        select_options = {
-            option["id"]: option["label"]
-            for option in instance.extra_data.get("select_options", [])
-        }
+        select_options = {option["id"]: option["label"] for option in instance.extra_data.get("select_options", [])}
 
         for cf_instance in instance.fields.all():
             # Check if the current value is still a valid option
@@ -666,13 +651,7 @@ def run_workflows_updated(sender, document: Document, logging_group=None, **kwar
 def _is_public_ip(ip: str) -> bool:
     try:
         obj = ipaddress.ip_address(ip)
-        return not (
-            obj.is_private
-            or obj.is_loopback
-            or obj.is_link_local
-            or obj.is_multicast
-            or obj.is_unspecified
-        )
+        return not (obj.is_private or obj.is_loopback or obj.is_link_local or obj.is_multicast or obj.is_unspecified)
     except ValueError:  # pragma: no cover
         return False
 
@@ -705,26 +684,19 @@ def send_webhook(
         raise ValueError("Invalid URL scheme or hostname.")
 
     port = p.port or (443 if p.scheme == "https" else 80)
-    if (
-        len(settings.WEBHOOKS_ALLOWED_PORTS) > 0
-        and port not in settings.WEBHOOKS_ALLOWED_PORTS
-    ):
+    if len(settings.WEBHOOKS_ALLOWED_PORTS) > 0 and port not in settings.WEBHOOKS_ALLOWED_PORTS:
         logger.warning("Webhook blocked: port not permitted")
         raise ValueError("Destination port not permitted.")
 
     ip = _resolve_first_ip(p.hostname)
-    if not ip or (
-        not _is_public_ip(ip) and not settings.WEBHOOKS_ALLOW_INTERNAL_REQUESTS
-    ):
+    if not ip or (not _is_public_ip(ip) and not settings.WEBHOOKS_ALLOW_INTERNAL_REQUESTS):
         logger.warning("Webhook blocked: destination not allowed")
         raise ValueError("Destination host is not allowed.")
 
     try:
         post_args = {
             "url": url,
-            "headers": {
-                k: v for k, v in (headers or {}).items() if k.lower() != "host"
-            },
+            "headers": {k: v for k, v in (headers or {}).items() if k.lower() != "host"},
             "files": files or None,
             "timeout": 5.0,
             "follow_redirects": False,
@@ -848,26 +820,22 @@ def run_workflows(
             else:
                 overrides.view_users = list(
                     set(
-                        (overrides.view_users or [])
-                        + list(permissions["view"]["users"]),
+                        (overrides.view_users or []) + list(permissions["view"]["users"]),
                     ),
                 )
                 overrides.view_groups = list(
                     set(
-                        (overrides.view_groups or [])
-                        + list(permissions["view"]["groups"]),
+                        (overrides.view_groups or []) + list(permissions["view"]["groups"]),
                     ),
                 )
                 overrides.change_users = list(
                     set(
-                        (overrides.change_users or [])
-                        + list(permissions["change"]["users"]),
+                        (overrides.change_users or []) + list(permissions["change"]["users"]),
                     ),
                 )
                 overrides.change_groups = list(
                     set(
-                        (overrides.change_groups or [])
-                        + list(permissions["change"]["groups"]),
+                        (overrides.change_groups or []) + list(permissions["change"]["groups"]),
                     ),
                 )
 
@@ -990,19 +958,12 @@ def run_workflows(
             overrides.storage_path_id = None
 
         if not use_overrides and (
-            action.remove_all_owners
-            or (
-                document.owner
-                and action.remove_owners.filter(pk=document.owner.pk).exists()
-            )
+            action.remove_all_owners or (document.owner and action.remove_owners.filter(pk=document.owner.pk).exists())
         ):
             document.owner = None
         elif use_overrides and (
             action.remove_all_owners
-            or (
-                overrides.owner_id
-                and action.remove_owners.filter(pk=overrides.owner_id).exists()
-            )
+            or (overrides.owner_id and action.remove_owners.filter(pk=overrides.owner_id).exists())
         ):
             overrides.owner_id = None
 
@@ -1089,12 +1050,8 @@ def run_workflows(
         if not use_overrides:
             title = document.title
             doc_url = f"{settings.PAPERLESS_URL}/documents/{document.pk}/"
-            correspondent = (
-                document.correspondent.name if document.correspondent else ""
-            )
-            document_type = (
-                document.document_type.name if document.document_type else ""
-            )
+            correspondent = document.correspondent.name if document.correspondent else ""
+            document_type = document.document_type.name if document.document_type else ""
             owner_username = document.owner.username if document.owner else ""
             filename = document.original_filename or ""
             current_filename = document.filename or ""
@@ -1113,11 +1070,7 @@ def run_workflows(
                 if overrides.document_type_id
                 else ""
             )
-            owner_username = (
-                User.objects.filter(pk=overrides.owner_id).first().username
-                if overrides.owner_id
-                else ""
-            )
+            owner_username = User.objects.filter(pk=overrides.owner_id).first().username if overrides.owner_id else ""
             filename = document.original_file if document.original_file else ""
             current_filename = filename
             added = timezone.localtime(timezone.now())
@@ -1177,12 +1130,8 @@ def run_workflows(
         if not use_overrides:
             title = document.title
             doc_url = f"{settings.PAPERLESS_URL}/documents/{document.pk}/"
-            correspondent = (
-                document.correspondent.name if document.correspondent else ""
-            )
-            document_type = (
-                document.document_type.name if document.document_type else ""
-            )
+            correspondent = document.correspondent.name if document.correspondent else ""
+            document_type = document.document_type.name if document.document_type else ""
             owner_username = document.owner.username if document.owner else ""
             filename = document.original_filename or ""
             current_filename = document.filename or ""
@@ -1201,11 +1150,7 @@ def run_workflows(
                 if overrides.document_type_id
                 else ""
             )
-            owner_username = (
-                User.objects.filter(pk=overrides.owner_id).first().username
-                if overrides.owner_id
-                else ""
-            )
+            owner_username = User.objects.filter(pk=overrides.owner_id).first().username if overrides.owner_id else ""
             filename = document.original_file if document.original_file else ""
             current_filename = filename
             added = timezone.localtime(timezone.now())
@@ -1250,9 +1195,7 @@ def run_workflows(
             headers = {}
             if action.webhook.headers:
                 try:
-                    headers = {
-                        str(k): str(v) for k, v in action.webhook.headers.items()
-                    }
+                    headers = {str(k): str(v) for k, v in action.webhook.headers.items()}
                 except Exception as e:
                     logger.error(
                         f"Error occurred parsing webhook headers: {e}",
@@ -1287,9 +1230,7 @@ def run_workflows(
 
     use_overrides = overrides is not None
     if original_file is None:
-        original_file = (
-            document.source_path if not use_overrides else document.original_file
-        )
+        original_file = document.source_path if not use_overrides else document.original_file
     messages = []
 
     workflows = (
@@ -1358,6 +1299,7 @@ def run_workflows(
 
     if use_overrides:
         return overrides, "\n".join(messages)
+    return None
 
 
 @before_task_publish.connect

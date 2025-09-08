@@ -317,9 +317,7 @@ class Command(BaseCommand):
                     # last_event_time is time of the last inotify event for this file
                     for filepath, last_event_time in notified_files.items():
                         # Current time - last time over the configured timeout
-                        waited_long_enough = (
-                            monotonic() - last_event_time
-                        ) > inotify_debounce_secs
+                        waited_long_enough = (monotonic() - last_event_time) > inotify_debounce_secs
 
                         # Also make sure the file exists still, some scanners might write a
                         # temporary file first

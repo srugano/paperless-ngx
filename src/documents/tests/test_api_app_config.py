@@ -160,9 +160,7 @@ class TestApiAppConfig(DirectoriesMixin, APITestCase):
             {
                 "app_logo": SimpleUploadedFile(
                     name="simple.jpg",
-                    content=(
-                        Path(__file__).parent / "samples" / "simple.jpg"
-                    ).read_bytes(),
+                    content=(Path(__file__).parent / "samples" / "simple.jpg").read_bytes(),
                     content_type="image/jpeg",
                 ),
             },
@@ -181,9 +179,7 @@ class TestApiAppConfig(DirectoriesMixin, APITestCase):
             {
                 "app_logo": SimpleUploadedFile(
                     name="simple.png",
-                    content=(
-                        Path(__file__).parent / "samples" / "simple.png"
-                    ).read_bytes(),
+                    content=(Path(__file__).parent / "samples" / "simple.png").read_bytes(),
                     content_type="image/png",
                 ),
             },

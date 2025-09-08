@@ -38,10 +38,7 @@ class TestTikaParserAgainstServer:
             [sample_odt_file, "application/vnd.oasis.opendocument.text"],
         )
 
-        assert (
-            tika_parser.text
-            == "This is an ODT test document, created September 14, 2022"
-        )
+        assert tika_parser.text == "This is an ODT test document, created September 14, 2022"
         assert tika_parser.archive_path is not None
         assert b"PDF-" in tika_parser.archive_path.read_bytes()[:10]
 
@@ -70,10 +67,7 @@ class TestTikaParserAgainstServer:
             ],
         )
 
-        assert (
-            tika_parser.text
-            == "This is an DOCX test document, also made September 14, 2022"
-        )
+        assert tika_parser.text == "This is an DOCX test document, also made September 14, 2022"
         assert tika_parser.archive_path is not None
         with Path(tika_parser.archive_path).open("rb") as f:
             assert b"PDF-" in f.read()[:10]
@@ -99,10 +93,7 @@ class TestTikaParserAgainstServer:
             [sample_doc_file, "application/msword"],
         )
 
-        assert (
-            "This is a test document, saved in the older .doc format"
-            in tika_parser.text
-        )
+        assert "This is a test document, saved in the older .doc format" in tika_parser.text
         assert tika_parser.archive_path is not None
         with Path(tika_parser.archive_path).open("rb") as f:
             assert b"PDF-" in f.read()[:10]

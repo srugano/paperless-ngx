@@ -131,9 +131,7 @@ class TestParserLive:
 
         assert self.imagehash(thumb) == self.imagehash(
             simple_txt_email_thumbnail_file,
-        ), (
-            f"Created Thumbnail {thumb} differs from expected file {simple_txt_email_thumbnail_file}"
-        )
+        ), f"Created Thumbnail {thumb} differs from expected file {simple_txt_email_thumbnail_file}"
 
     def test_tika_parse_successful(self, mail_parser: MailDocumentParser):
         """
@@ -186,9 +184,7 @@ class TestParserLive:
         assert pdf_path.is_file()
 
         extracted = extract_text(pdf_path)
-        expected = (
-            "first   PDF   to   be   merged.\n\x0csecond PDF   to   be   merged.\n\x0c"
-        )
+        expected = "first   PDF   to   be   merged.\n\x0csecond PDF   to   be   merged.\n\x0c"
 
         assert expected == extracted
 

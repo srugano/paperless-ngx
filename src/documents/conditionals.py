@@ -1,5 +1,5 @@
 from datetime import datetime
-from datetime import timezone
+from datetime import UTC
 
 from django.conf import settings
 from django.core.cache import cache
@@ -29,12 +29,9 @@ def suggestions_etag(request, pk: int) -> str | None:
         [CLASSIFIER_VERSION_KEY, CLASSIFIER_HASH_KEY],
     )
     # If the version differs somehow, no etag
-    if (
-        CLASSIFIER_VERSION_KEY in cache_hits
-        and cache_hits[CLASSIFIER_VERSION_KEY] != DocumentClassifier.FORMAT_VERSION
-    ):
+    if CLASSIFIER_VERSION_KEY in cache_hits and cache_hits[CLASSIFIER_VERSION_KEY] != DocumentClassifier.FORMAT_VERSION:
         return None
-    elif CLASSIFIER_HASH_KEY in cache_hits:
+    if CLASSIFIER_HASH_KEY in cache_hits:
         # Refresh the cache and return the hash digest and the dates setting
         cache.touch(CLASSIFIER_HASH_KEY, CACHE_5_MINUTES)
         return f"{cache_hits[CLASSIFIER_HASH_KEY]}:{settings.NUMBER_OF_SUGGESTED_DATES}"
@@ -54,12 +51,9 @@ def suggestions_last_modified(request, pk: int) -> datetime | None:
         [CLASSIFIER_VERSION_KEY, CLASSIFIER_MODIFIED_KEY],
     )
     # If the version differs somehow, no last modified
-    if (
-        CLASSIFIER_VERSION_KEY in cache_hits
-        and cache_hits[CLASSIFIER_VERSION_KEY] != DocumentClassifier.FORMAT_VERSION
-    ):
+    if CLASSIFIER_VERSION_KEY in cache_hits and cache_hits[CLASSIFIER_VERSION_KEY] != DocumentClassifier.FORMAT_VERSION:
         return None
-    elif CLASSIFIER_MODIFIED_KEY in cache_hits:
+    if CLASSIFIER_MODIFIED_KEY in cache_hits:
         # Refresh the cache and return the last modified
         cache.touch(CLASSIFIER_MODIFIED_KEY, CACHE_5_MINUTES)
         return cache_hits[CLASSIFIER_MODIFIED_KEY]
@@ -99,10 +93,7 @@ def preview_etag(request, pk: int) -> str | None:
     """
     try:
         doc = Document.objects.only("checksum", "archive_checksum").get(pk=pk)
-        use_original = (
-            "original" in request.query_params
-            and request.query_params["original"] == "true"
-        )
+        use_original = "original" in request.query_params and request.query_params["original"] == "true"
         return doc.checksum if use_original else doc.archive_checksum
     except Document.DoesNotExist:  # pragma: no cover
         return None
@@ -141,7 +132,7 @@ def thumbnail_last_modified(request, pk: int) -> datetime | None:
         # No cache, get the timestamp and cache the datetime
         last_modified = datetime.fromtimestamp(
             doc.thumbnail_path.stat().st_mtime,
-            tz=timezone.utc,
+            tz=UTC,
         )
         cache.set(doc_key, last_modified, CACHE_50_MINUTES)
         return last_modified

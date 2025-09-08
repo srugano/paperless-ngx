@@ -28,7 +28,7 @@ class defaultdictNoStr(defaultdict):
 def many_to_dictionary(field):  # pragma: no cover
     # Converts ManyToManyField to dictionary by assuming, that field
     # entries contain an _ or - which will be used as a delimiter
-    mydictionary = dict()
+    mydictionary = {}
 
     for index, t in enumerate(field.all()):
         # Populate tag names by index
@@ -70,8 +70,7 @@ STORAGE_TYPE_GPG = "gpg"
 def archive_path_new(doc) -> Path | None:
     if doc.archive_filename is not None:
         return settings.ARCHIVE_DIR / doc.archive_filename
-    else:
-        return None
+    return None
 
 
 def source_path(doc) -> Path:
@@ -159,8 +158,7 @@ def generate_filename(doc, *, counter=0, append_gpg=True, archive_filename=False
 
     except (ValueError, KeyError, IndexError):
         logger.warning(
-            f"Invalid PAPERLESS_FILENAME_FORMAT: "
-            f"{settings.FILENAME_FORMAT}, falling back to default",
+            f"Invalid PAPERLESS_FILENAME_FORMAT: {settings.FILENAME_FORMAT}, falling back to default",
         )
 
     counter_str = f"_{counter:02}" if counter else ""
@@ -219,8 +217,7 @@ def create_archive_version(doc, retry_count=3):
             else:
                 doc.archive_checksum = None
                 logger.error(
-                    f"Parser did not return an archive document for document "
-                    f"ID:{doc.id}. Removing archive document.",
+                    f"Parser did not return an archive document for document ID:{doc.id}. Removing archive document.",
                 )
             doc.save()
             return
@@ -234,13 +231,12 @@ def create_archive_version(doc, retry_count=3):
                 doc.archive_checksum = None
                 doc.save()
                 return
-            else:
-                # This is mostly here for the tika parser in docker
-                # environments. The servers for parsing need to come up first,
-                # and the docker setup doesn't ensure that tika is running
-                # before attempting migrations.
-                logger.error("Parse error, will try again in 5 seconds...")
-                sleep(5)
+            # This is mostly here for the tika parser in docker
+            # environments. The servers for parsing need to come up first,
+            # and the docker setup doesn't ensure that tika is running
+            # before attempting migrations.
+            logger.error("Parse error, will try again in 5 seconds...")
+            sleep(5)
         finally:
             parser.cleanup()
 
@@ -278,8 +274,7 @@ def move_old_to_new_locations(apps, schema_editor):
         parser_class = get_parser_class_for_mime_type(doc.mime_type)
         if not parser_class:
             raise ValueError(
-                f"Document ID:{doc.id} has an invalid archived document, "
-                f"but no parsers are available. Cannot migrate.",
+                f"Document ID:{doc.id} has an invalid archived document, but no parsers are available. Cannot migrate.",
             )
 
     for doc in Document.objects.filter(archive_checksum__isnull=False):
@@ -319,8 +314,7 @@ def move_new_to_old_locations(apps, schema_editor):
         old_archive_paths.add(old_archive_path)
         if new_archive_path != old_archive_path and old_archive_path.is_file():
             raise ValueError(
-                f"Cannot migrate: Cannot move {new_archive_path} to "
-                f"{old_archive_path}: file already exists.",
+                f"Cannot migrate: Cannot move {new_archive_path} to {old_archive_path}: file already exists.",
             )
 
     for doc in Document.objects.filter(archive_checksum__isnull=False):

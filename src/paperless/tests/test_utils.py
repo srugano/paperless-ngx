@@ -47,6 +47,4 @@ def test_ocr_to_dateparser_languages_exception(monkeypatch, caplog):
         monkeypatch.setattr(utils, "LocaleDataLoader", lambda: DummyLoader())
         result = utils.ocr_to_dateparser_languages("eng+fra")
         assert result == []
-        assert (
-            "Set PAPERLESS_DATE_PARSER_LANGUAGES parameter to avoid this" in caplog.text
-        )
+        assert "Set PAPERLESS_DATE_PARSER_LANGUAGES parameter to avoid this" in caplog.text

@@ -1,13 +1,13 @@
 {% extends "paperless-ngx/base.html" %}
-{% load i18n allauth %}
+{% load allauth i18n %}
 
 {% block head_title %}
-    {% trans "Paperless-ngx social account sign in" %}
+    {% translate "Paperless-ngx social account sign in" %}
 {% endblock head_title %}
 
 {% block form_content %}
     <p>
-        {% blocktrans with provider.name as provider %}You are about to connect a new third-party account from {{ provider }}.{% endblocktrans %}
+        {% blocktranslate with provider=provider.name %}You are about to connect a new third-party account from {{ provider }}.{% endblocktranslate %}
     </p>
     <div class="d-grid mt-3">
         <button class="btn btn-lg btn-primary" type="submit">{% translate "Continue" %}</button>

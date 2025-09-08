@@ -639,4 +639,3 @@ msgstr ""
 #: paperless_mail/models.py:205
 msgid "assign this correspondent"
 msgstr ""
-

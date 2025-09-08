@@ -22,15 +22,8 @@ class Command(BaseCommand, ProgressBarMixin):
             for log_entry in tqdm(LogEntry.objects.all(), disable=self.no_progress_bar):
                 model_class = log_entry.content_type.model_class()
                 # use global_objects for SoftDeleteModel
-                objects = (
-                    model_class.global_objects
-                    if hasattr(model_class, "global_objects")
-                    else model_class.objects
-                )
-                if (
-                    log_entry.object_id
-                    and not objects.filter(pk=log_entry.object_id).exists()
-                ):
+                objects = model_class.global_objects if hasattr(model_class, "global_objects") else model_class.objects
+                if log_entry.object_id and not objects.filter(pk=log_entry.object_id).exists():
                     log_entry.delete()
                     tqdm.write(
                         self.style.NOTICE(

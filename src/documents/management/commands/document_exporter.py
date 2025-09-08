@@ -113,10 +113,7 @@ class Command(CryptMixin, BaseCommand):
             "--use-filename-format",
             default=False,
             action="store_true",
-            help=(
-                "Use PAPERLESS_FILENAME_FORMAT for storing files in the "
-                "export directory, if configured."
-            ),
+            help=("Use PAPERLESS_FILENAME_FORMAT for storing files in the export directory, if configured."),
         )
 
         parser.add_argument(
@@ -140,10 +137,7 @@ class Command(CryptMixin, BaseCommand):
             "--use-folder-prefix",
             default=False,
             action="store_true",
-            help=(
-                "Export files in dedicated folders according to their nature: "
-                "archive, originals or thumbnails"
-            ),
+            help=("Export files in dedicated folders according to their nature: archive, originals or thumbnails"),
         )
 
         parser.add_argument(
@@ -305,9 +299,7 @@ class Command(CryptMixin, BaseCommand):
             # These are treated specially and included in the per-document manifest
             # if that setting is enabled.  Otherwise, they are just exported to the bulk
             # manifest
-            document_map: dict[int, Document] = {
-                d.pk: d for d in manifest_key_to_object_query["documents"]
-            }
+            document_map: dict[int, Document] = {d.pk: d for d in manifest_key_to_object_query["documents"]}
             document_manifest = manifest_dict["documents"]
 
         # 3. Export files from each document
@@ -325,8 +317,8 @@ class Command(CryptMixin, BaseCommand):
             base_name = self.generate_base_name(document)
 
             # 3.3. write filenames into manifest
-            original_target, thumbnail_target, archive_target = (
-                self.generate_document_targets(document, base_name, document_dict)
+            original_target, thumbnail_target, archive_target = self.generate_document_targets(
+                document, base_name, document_dict
             )
 
             # 3.4. write files to target folder
@@ -431,8 +423,7 @@ class Command(CryptMixin, BaseCommand):
             if base_name not in self.exported_files:
                 self.exported_files.add(base_name)
                 break
-            else:
-                filename_counter += 1
+            filename_counter += 1
         return Path(base_name)
 
     def generate_document_targets(
@@ -574,10 +565,7 @@ class Command(CryptMixin, BaseCommand):
             if self.compare_checksums and source_checksum:
                 target_checksum = hashlib.md5(target.read_bytes()).hexdigest()
                 perform_copy = target_checksum != source_checksum
-            elif (
-                source_stat.st_mtime != target_stat.st_mtime
-                or source_stat.st_size != target_stat.st_size
-            ):
+            elif source_stat.st_mtime != target_stat.st_mtime or source_stat.st_size != target_stat.st_size:
                 perform_copy = True
         else:
             # Copy if it does not exist

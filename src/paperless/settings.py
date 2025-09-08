@@ -107,10 +107,9 @@ def __get_list(
     """
     if key in os.environ:
         return list(filter(None, os.environ[key].split(sep)))
-    elif default is not None:
+    if default is not None:
         return default
-    else:
-        return []
+    return []
 
 
 def _parse_redis_url(env_redis: str | None) -> tuple[str, str]:
@@ -133,10 +132,9 @@ def _parse_redis_url(env_redis: str | None) -> tuple[str, str]:
         if "?db=" in env_redis:
             path, number = path.split("?db=")
             return (f"redis+socket:{path}?virtual_host={number}", env_redis)
-        else:
-            return (f"redis+socket:{path}", env_redis)
+        return (f"redis+socket:{path}", env_redis)
 
-    elif "+socket" in env_redis.lower():
+    if "+socket" in env_redis.lower():
         # celery socket style, looks like:
         # "redis+socket:///path/to/redis.sock"
         _, path = env_redis.split(":")
@@ -144,8 +142,7 @@ def _parse_redis_url(env_redis: str | None) -> tuple[str, str]:
             # Virtual host (aka db number)
             path, number = path.split("?virtual_host=")
             return (env_redis, f"unix:{path}?db={number}")
-        else:
-            return (env_redis, f"unix:{path}")
+        return (env_redis, f"unix:{path}")
 
     # Not a socket
     return (env_redis, env_redis)
@@ -394,9 +391,7 @@ def _parse_base_paths() -> tuple[str, str, str, str, str]:
     return script_name, base_url, login_url, login_redirect_url, logout_redirect_url
 
 
-FORCE_SCRIPT_NAME, BASE_URL, LOGIN_URL, LOGIN_REDIRECT_URL, LOGOUT_REDIRECT_URL = (
-    _parse_base_paths()
-)
+FORCE_SCRIPT_NAME, BASE_URL, LOGIN_URL, LOGIN_REDIRECT_URL, LOGOUT_REDIRECT_URL = _parse_base_paths()
 
 # DRF Spectacular settings
 SPECTACULAR_SETTINGS = {
@@ -573,12 +568,10 @@ def _parse_remote_user_settings() -> str:
             "paperless.auth.PaperlessRemoteUserAuthentication",
         )
 
-    header_name = os.getenv(
+    return os.getenv(
         "PAPERLESS_HTTP_REMOTE_USER_HEADER_NAME",
         "HTTP_REMOTE_USER",
     )
-
-    return header_name
 
 
 HTTP_REMOTE_USER_HEADER_NAME = _parse_remote_user_settings()
@@ -628,9 +621,7 @@ TRUSTED_PROXIES = __get_list("PAPERLESS_TRUSTED_PROXIES")
 USE_X_FORWARDED_HOST = __get_boolean("PAPERLESS_USE_X_FORWARD_HOST", "false")
 USE_X_FORWARDED_PORT = __get_boolean("PAPERLESS_USE_X_FORWARD_PORT", "false")
 SECURE_PROXY_SSL_HEADER = (
-    tuple(json.loads(os.environ["PAPERLESS_PROXY_SSL_HEADER"]))
-    if "PAPERLESS_PROXY_SSL_HEADER" in os.environ
-    else None
+    tuple(json.loads(os.environ["PAPERLESS_PROXY_SSL_HEADER"])) if "PAPERLESS_PROXY_SSL_HEADER" in os.environ else None
 )
 
 # The secret key has a default that should be fine so long as you're hosting
@@ -931,7 +922,7 @@ def _parse_cachalot_settings():
     _, redis_url = _parse_redis_url(
         os.getenv("PAPERLESS_READ_CACHE_REDIS_URL", _CHANNELS_REDIS_URL),
     )
-    result = {
+    return {
         "CACHALOT_CACHE": "read-cache",
         "CACHALOT_ENABLED": __get_boolean(
             "PAPERLESS_DB_READ_CACHE_ENABLED",
@@ -943,7 +934,6 @@ def _parse_cachalot_settings():
         "CACHALOT_REDIS_URL": redis_url,
         "CACHALOT_TIMEOUT": ttl,
     }
-    return result
 
 
 cachalot_settings = _parse_cachalot_settings()
@@ -960,9 +950,7 @@ CACHALOT_FINAL_SQL_CHECK = cachalot_settings["CACHALOT_FINAL_SQL_CHECK"]
 # Django default & Cachalot cache configuration
 _CACHE_BACKEND = os.environ.get(
     "PAPERLESS_CACHE_BACKEND",
-    "django.core.cache.backends.locmem.LocMemCache"
-    if DEBUG
-    else "django.core.cache.backends.redis.RedisCache",
+    "django.core.cache.backends.locmem.LocMemCache" if DEBUG else "django.core.cache.backends.redis.RedisCache",
 )
 
 
@@ -1355,35 +1343,31 @@ OAUTH_CALLBACK_BASE_URL = os.getenv("PAPERLESS_OAUTH_CALLBACK_BASE_URL")
 GMAIL_OAUTH_CLIENT_ID = os.getenv("PAPERLESS_GMAIL_OAUTH_CLIENT_ID")
 GMAIL_OAUTH_CLIENT_SECRET = os.getenv("PAPERLESS_GMAIL_OAUTH_CLIENT_SECRET")
 GMAIL_OAUTH_ENABLED = bool(
-    (OAUTH_CALLBACK_BASE_URL or PAPERLESS_URL)
-    and GMAIL_OAUTH_CLIENT_ID
-    and GMAIL_OAUTH_CLIENT_SECRET,
+    (OAUTH_CALLBACK_BASE_URL or PAPERLESS_URL) and GMAIL_OAUTH_CLIENT_ID and GMAIL_OAUTH_CLIENT_SECRET,
 )
 OUTLOOK_OAUTH_CLIENT_ID = os.getenv("PAPERLESS_OUTLOOK_OAUTH_CLIENT_ID")
 OUTLOOK_OAUTH_CLIENT_SECRET = os.getenv("PAPERLESS_OUTLOOK_OAUTH_CLIENT_SECRET")
 OUTLOOK_OAUTH_ENABLED = bool(
-    (OAUTH_CALLBACK_BASE_URL or PAPERLESS_URL)
-    and OUTLOOK_OAUTH_CLIENT_ID
-    and OUTLOOK_OAUTH_CLIENT_SECRET,
+    (OAUTH_CALLBACK_BASE_URL or PAPERLESS_URL) and OUTLOOK_OAUTH_CLIENT_ID and OUTLOOK_OAUTH_CLIENT_SECRET,
 )
 
 ###############################################################################
 # Webhooks
 ###############################################################################
-WEBHOOKS_ALLOWED_SCHEMES = set(
+WEBHOOKS_ALLOWED_SCHEMES = {
     s.lower()
     for s in __get_list(
         "PAPERLESS_WEBHOOKS_ALLOWED_SCHEMES",
         ["http", "https"],
     )
-)
-WEBHOOKS_ALLOWED_PORTS = set(
+}
+WEBHOOKS_ALLOWED_PORTS = {
     int(p)
     for p in __get_list(
         "PAPERLESS_WEBHOOKS_ALLOWED_PORTS",
         [],
     )
-)
+}
 WEBHOOKS_ALLOW_INTERNAL_REQUESTS = __get_boolean(
     "PAPERLESS_WEBHOOKS_ALLOW_INTERNAL_REQUESTS",
     "true",

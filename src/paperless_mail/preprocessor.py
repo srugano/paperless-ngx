@@ -66,8 +66,7 @@ class MailMessageDecryptor(MailMessagePreprocessor, LoggingMixin):
 
         if not decrypted_raw_message.ok:
             self.log.debug(
-                f"Message decryption failed with status message "
-                f"{decrypted_raw_message.status}",
+                f"Message decryption failed with status message {decrypted_raw_message.status}",
             )
             raise Exception(
                 f"Decryption failed: {decrypted_raw_message.status}, {decrypted_raw_message.stderr}",
@@ -85,11 +84,10 @@ class MailMessageDecryptor(MailMessagePreprocessor, LoggingMixin):
 
     @staticmethod
     def _to_email_message(message: MailMessage) -> Message:
-        email_message = message_from_bytes(
+        return message_from_bytes(
             message.obj.as_bytes(),
             policy=policy.default,
         )
-        return email_message
 
     @staticmethod
     def _build_decrypted_message(decrypted_raw_message, email_message):

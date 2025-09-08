@@ -10,7 +10,6 @@ from pathlib import Path
 import gnupg
 from django.conf import settings
 from django.db import migrations
-from django.utils.termcolors import colorize as colourise  # Spelling hurts me
 
 
 class GnuPG:
@@ -49,31 +48,11 @@ def move_documents_and_create_thumbnails(apps, schema_editor):
     if set(documents) == {"originals", "thumbnails"}:
         return
 
-    print(
-        colourise(
-            "\n\n"
-            "  This is a one-time only migration to generate thumbnails for all of your\n"
-            "  documents so that future UIs will have something to work with.  If you have\n"
-            "  a lot of documents though, this may take a while, so a coffee break may be\n"
-            "  in order."
-            "\n",
-            opts=("bold",),
-        ),
-    )
-
     Path(settings.SCRATCH_DIR).mkdir(parents=True, exist_ok=True)
 
     for f in sorted(documents):
         if not f.endswith("gpg"):
             continue
-
-        print(
-            "    {} {} {}".format(
-                colourise("*", fg="green"),
-                colourise("Generating a thumbnail for", fg="white"),
-                colourise(f, fg="cyan"),
-            ),
-        )
 
         thumb_temp: str = tempfile.mkdtemp(prefix="paperless", dir=settings.SCRATCH_DIR)
         orig_temp: str = tempfile.mkdtemp(prefix="paperless", dir=settings.SCRATCH_DIR)
@@ -98,10 +77,7 @@ def move_documents_and_create_thumbnails(apps, schema_editor):
 
         thumb_source: Path = Path(thumb_temp) / "convert-0000.png"
         thumb_target: Path = (
-            Path(settings.MEDIA_ROOT)
-            / "documents"
-            / "thumbnails"
-            / re.sub(r"(\d+)\.\w+(\.gpg)", "\\1.png\\2", f)
+            Path(settings.MEDIA_ROOT) / "documents" / "thumbnails" / re.sub(r"(\d+)\.\w+(\.gpg)", "\\1.png\\2", f)
         )
         with (
             thumb_source.open("rb") as unencrypted,

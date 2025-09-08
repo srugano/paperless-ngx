@@ -44,9 +44,7 @@ class ConsumerThreadMixin(DocumentConsumeDelayMixin):
     and stops it at tearDown
     """
 
-    sample_file: Path = (
-        Path(__file__).parent / Path("samples") / Path("simple.pdf")
-    ).resolve()
+    sample_file: Path = (Path(__file__).parent / Path("samples") / Path("simple.pdf")).resolve()
 
     def setUp(self) -> None:
         super().setUp()
@@ -89,8 +87,7 @@ class ConsumerThreadMixin(DocumentConsumeDelayMixin):
         if not eq:
             print("Consumed an INVALID file.")  # noqa: T201
             raise ConsumerError("Incomplete File READ FAILED")
-        else:
-            print("Consumed a perfectly valid file.")  # noqa: T201
+        print("Consumed a perfectly valid file.")  # noqa: T201
 
     def slow_write_file(self, target, *, incomplete=False):
         with Path(self.sample_file).open("rb") as f:
@@ -313,10 +310,7 @@ class TestConsumer(DirectoriesMixin, ConsumerThreadMixin, TransactionTestCase):
             },
             {
                 "path": str(
-                    Path(self.dirs.consumption_dir)
-                    / "@eaDir"
-                    / "SYNO@.fileindexdb"
-                    / "_1jk.fnm",
+                    Path(self.dirs.consumption_dir) / "@eaDir" / "SYNO@.fileindexdb" / "_1jk.fnm",
                 ),
                 "ignore": True,
             },

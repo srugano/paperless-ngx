@@ -175,14 +175,9 @@ def modify_custom_fields(
             defaults = {}
             custom_field = custom_fields.get(id=field_id)
             if custom_field:
-                value_field = CustomFieldInstance.TYPE_TO_DATA_STORE_NAME_MAP[
-                    custom_field.data_type
-                ]
+                value_field = CustomFieldInstance.TYPE_TO_DATA_STORE_NAME_MAP[custom_field.data_type]
                 defaults[value_field] = value
-                if (
-                    custom_field.data_type == CustomField.FieldDataType.DOCUMENTLINK
-                    and doc_id in value
-                ):
+                if custom_field.data_type == CustomField.FieldDataType.DOCUMENTLINK and doc_id in value:
                     # Prevent self-linking
                     continue
             CustomFieldInstance.objects.update_or_create(
@@ -342,9 +337,7 @@ def merge(
         try:
             doc_path = (
                 doc.archive_path
-                if archive_fallback
-                and doc.mime_type != "application/pdf"
-                and doc.has_archive_version
+                if archive_fallback and doc.mime_type != "application/pdf" and doc.has_archive_version
                 else doc.source_path
             )
             with pikepdf.open(str(doc_path)) as pdf:
@@ -372,9 +365,7 @@ def merge(
     if metadata_document_id:
         metadata_document = qs.get(id=metadata_document_id)
         if metadata_document is not None:
-            overrides: DocumentMetadataOverrides = (
-                DocumentMetadataOverrides.from_document(metadata_document)
-            )
+            overrides: DocumentMetadataOverrides = DocumentMetadataOverrides.from_document(metadata_document)
             overrides.title = metadata_document.title + " (merged)"
         else:
             overrides = DocumentMetadataOverrides()
@@ -436,9 +427,7 @@ def split(
                 dst.save(filepath)
                 dst.close()
 
-                overrides: DocumentMetadataOverrides = (
-                    DocumentMetadataOverrides().from_document(doc)
-                )
+                overrides: DocumentMetadataOverrides = DocumentMetadataOverrides().from_document(doc)
                 overrides.title = f"{doc.title} (split {idx + 1})"
                 if user is not None:
                     overrides.owner_id = user.id
@@ -556,18 +545,13 @@ def edit_pdf(
         else:
             consume_tasks = []
             overrides = (
-                DocumentMetadataOverrides().from_document(doc)
-                if include_metadata
-                else DocumentMetadataOverrides()
+                DocumentMetadataOverrides().from_document(doc) if include_metadata else DocumentMetadataOverrides()
             )
             if user is not None:
                 overrides.owner_id = user.id
 
             for idx, pdf in enumerate(pdf_docs, start=1):
-                filepath: Path = (
-                    Path(tempfile.mkdtemp(dir=settings.SCRATCH_DIR))
-                    / f"{doc.id}_edit_{idx}.pdf"
-                )
+                filepath: Path = Path(tempfile.mkdtemp(dir=settings.SCRATCH_DIR)) / f"{doc.id}_edit_{idx}.pdf"
                 pdf.remove_unreferenced_resources()
                 pdf.save(filepath)
                 consume_tasks.append(
@@ -669,10 +653,7 @@ def remove_doclink(
         document_id=target_doc_id,
         field=field,
     ).first()
-    if (
-        target_doc_field_instance is not None
-        and document.id in target_doc_field_instance.value
-    ):
+    if target_doc_field_instance is not None and document.id in target_doc_field_instance.value:
         target_doc_field_instance.value.remove(document.id)
         target_doc_field_instance.save()
     Document.objects.filter(id=target_doc_id).update(modified=timezone.now())

@@ -122,18 +122,10 @@ class CryptMixin:
 
     def load_crypt_params(self, metadata: dict):
         # Load up the values for setting up decryption
-        self.kdf_algorithm: str = metadata[EXPORTER_CRYPTO_SETTINGS_NAME][
-            EXPORTER_CRYPTO_ALGO_NAME
-        ]
-        self.key_iterations: int = metadata[EXPORTER_CRYPTO_SETTINGS_NAME][
-            EXPORTER_CRYPTO_KEY_ITERATIONS_NAME
-        ]
-        self.key_size: int = metadata[EXPORTER_CRYPTO_SETTINGS_NAME][
-            EXPORTER_CRYPTO_KEY_SIZE_NAME
-        ]
-        self.salt: str = metadata[EXPORTER_CRYPTO_SETTINGS_NAME][
-            EXPORTER_CRYPTO_SALT_NAME
-        ]
+        self.kdf_algorithm: str = metadata[EXPORTER_CRYPTO_SETTINGS_NAME][EXPORTER_CRYPTO_ALGO_NAME]
+        self.key_iterations: int = metadata[EXPORTER_CRYPTO_SETTINGS_NAME][EXPORTER_CRYPTO_KEY_ITERATIONS_NAME]
+        self.key_size: int = metadata[EXPORTER_CRYPTO_SETTINGS_NAME][EXPORTER_CRYPTO_KEY_SIZE_NAME]
+        self.salt: str = metadata[EXPORTER_CRYPTO_SETTINGS_NAME][EXPORTER_CRYPTO_SALT_NAME]
 
     def setup_crypto(self, *, passphrase: str, salt: str | None = None):
         """

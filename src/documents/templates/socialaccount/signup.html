@@ -2,13 +2,13 @@
 {% load i18n %}
 
 {% block head_title %}
-    {% trans "Paperless-ngx social account sign up" %}
+    {% translate "Paperless-ngx social account sign up" %}
 {% endblock head_title %}
 
 {% block form_content %}
     <p>
-        {% blocktrans with provider_name=account.get_provider.name %}You are about to use your {{provider_name}} account to login.{% endblocktrans %}
-        {% blocktrans %}As a final step, please complete the following form:{% endblocktrans %}
+        {% blocktranslate with provider_name=account.get_provider.name %}You are about to use your {{ provider_name }} account to login.{% endblocktranslate %}
+        {% blocktranslate %}As a final step, please complete the following form:{% endblocktranslate %}
     </p>
     {% translate "Username" as i18n_username %}
     {% translate "Email (optional)" as i18n_email %}

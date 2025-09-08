@@ -32,8 +32,7 @@ class CollatePlugin(NoCleanupPluginMixin, NoSetupPluginMixin, ConsumeTaskPlugin)
     def able_to_run(self) -> bool:
         return (
             settings.CONSUMER_ENABLE_COLLATE_DOUBLE_SIDED
-            and settings.CONSUMER_COLLATE_DOUBLE_SIDED_SUBDIR_NAME
-            in self.input_doc.original_file.parts
+            and settings.CONSUMER_COLLATE_DOUBLE_SIDED_SUBDIR_NAME in self.input_doc.original_file.parts
         )
 
     def run(self) -> str | None:
@@ -57,10 +56,7 @@ class CollatePlugin(NoCleanupPluginMixin, NoSetupPluginMixin, ConsumeTaskPlugin)
 
         if self.input_doc.mime_type == "application/pdf":
             pdf_file = self.input_doc.original_file
-        elif (
-            self.input_doc.mime_type == "image/tiff"
-            and settings.CONSUMER_COLLATE_DOUBLE_SIDED_TIFF_SUPPORT
-        ):
+        elif self.input_doc.mime_type == "image/tiff" and settings.CONSUMER_COLLATE_DOUBLE_SIDED_TIFF_SUPPORT:
             pdf_file = convert_from_tiff_to_pdf(
                 self.input_doc.original_file,
                 self.base_tmp_dir,
@@ -110,8 +106,7 @@ class CollatePlugin(NoCleanupPluginMixin, NoSetupPluginMixin, ConsumeTaskPlugin)
                             for part in old_file.with_name(
                                 f"{old_file.stem}-collated.pdf",
                             ).parts
-                            if part
-                            != settings.CONSUMER_COLLATE_DOUBLE_SIDED_SUBDIR_NAME
+                            if part != settings.CONSUMER_COLLATE_DOUBLE_SIDED_SUBDIR_NAME
                         ),
                     )
                     # If the user didn't create the subdirs yet, do it for them
@@ -119,8 +114,7 @@ class CollatePlugin(NoCleanupPluginMixin, NoSetupPluginMixin, ConsumeTaskPlugin)
                     pdf1.save(new_file)
                 logger.info("Collated documents into new file %s", new_file)
                 raise StopConsumeTaskError(
-                    "Success. Even numbered pages of double sided scan collated "
-                    "with odd pages",
+                    "Success. Even numbered pages of double sided scan collated with odd pages",
                 )
             finally:
                 # Delete staging and recently uploaded file no matter what.

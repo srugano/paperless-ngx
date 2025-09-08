@@ -128,3 +128,16 @@ def get_boolean(boolstr: str) -> bool:
     Return a boolean value from a string representation.
     """
     return bool(boolstr.lower() in ("yes", "y", "1", "t", "true"))
+
+
+def split_into_chunks(text, max_chars=1000, overlap=100):
+    """
+    Split text into overlapping chunks.
+    Approximate token size by characters (fast).
+    """
+    chunks, start = [], 0
+    while start < len(text):
+        end = min(start + max_chars, len(text))
+        chunks.append(text[start:end])
+        start += max_chars - overlap
+    return chunks

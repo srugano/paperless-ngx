@@ -32,9 +32,7 @@ def log_reason(
     reason: str,
 ):
     class_name = type(matching_model).__name__
-    name = (
-        matching_model.name if hasattr(matching_model, "name") else str(matching_model)
-    )
+    name = matching_model.name if hasattr(matching_model, "name") else str(matching_model)
     logger.debug(
         f"{class_name} {name} matched on document {document} because {reason}",
     )
@@ -57,8 +55,7 @@ def match_correspondents(document: Document, classifier: DocumentClassifier, use
 
     return list(
         filter(
-            lambda o: matches(o, document)
-            or (o.pk == pred_id and o.matching_algorithm == MatchingModel.MATCH_AUTO),
+            lambda o: matches(o, document) or (o.pk == pred_id and o.matching_algorithm == MatchingModel.MATCH_AUTO),
             correspondents,
         ),
     )
@@ -81,8 +78,7 @@ def match_document_types(document: Document, classifier: DocumentClassifier, use
 
     return list(
         filter(
-            lambda o: matches(o, document)
-            or (o.pk == pred_id and o.matching_algorithm == MatchingModel.MATCH_AUTO),
+            lambda o: matches(o, document) or (o.pk == pred_id and o.matching_algorithm == MatchingModel.MATCH_AUTO),
             document_types,
         ),
     )
@@ -102,10 +98,7 @@ def match_tags(document: Document, classifier: DocumentClassifier, user=None):
     return list(
         filter(
             lambda o: matches(o, document)
-            or (
-                o.matching_algorithm == MatchingModel.MATCH_AUTO
-                and o.pk in predicted_tag_ids
-            ),
+            or (o.matching_algorithm == MatchingModel.MATCH_AUTO and o.pk in predicted_tag_ids),
             tags,
         ),
     )
@@ -128,8 +121,7 @@ def match_storage_paths(document: Document, classifier: DocumentClassifier, user
 
     return list(
         filter(
-            lambda o: matches(o, document)
-            or (o.pk == pred_id and o.matching_algorithm == MatchingModel.MATCH_AUTO),
+            lambda o: matches(o, document) or (o.pk == pred_id and o.matching_algorithm == MatchingModel.MATCH_AUTO),
             storage_paths,
         ),
     )
@@ -150,7 +142,7 @@ def matches(matching_model: MatchingModel, document: Document):
     if matching_model.matching_algorithm == MatchingModel.MATCH_NONE:
         return False
 
-    elif matching_model.matching_algorithm == MatchingModel.MATCH_ALL:
+    if matching_model.matching_algorithm == MatchingModel.MATCH_ALL:
         for word in _split_match(matching_model):
             search_result = re.search(rf"\b{word}\b", document_content, **search_kwargs)
             if not search_result:
@@ -162,14 +154,14 @@ def matches(matching_model: MatchingModel, document: Document):
         )
         return True
 
-    elif matching_model.matching_algorithm == MatchingModel.MATCH_ANY:
+    if matching_model.matching_algorithm == MatchingModel.MATCH_ANY:
         for word in _split_match(matching_model):
             if re.search(rf"\b{word}\b", document_content, **search_kwargs):
                 log_reason(matching_model, document, f"it contains this word: {word}")
                 return True
         return False
 
-    elif matching_model.matching_algorithm == MatchingModel.MATCH_LITERAL:
+    if matching_model.matching_algorithm == MatchingModel.MATCH_LITERAL:
         result = bool(
             re.search(
                 rf"\b{re.escape(matching_model.match)}\b",
@@ -185,7 +177,7 @@ def matches(matching_model: MatchingModel, document: Document):
             )
         return result
 
-    elif matching_model.matching_algorithm == MatchingModel.MATCH_REGEX:
+    if matching_model.matching_algorithm == MatchingModel.MATCH_REGEX:
         try:
             match = re.search(
                 re.compile(matching_model.match, **search_kwargs),
@@ -200,12 +192,11 @@ def matches(matching_model: MatchingModel, document: Document):
             log_reason(
                 matching_model,
                 document,
-                f"the string {match.group()} matches the regular expression "
-                f"{matching_model.match}",
+                f"the string {match.group()} matches the regular expression {matching_model.match}",
             )
         return bool(match)
 
-    elif matching_model.matching_algorithm == MatchingModel.MATCH_FUZZY:
+    if matching_model.matching_algorithm == MatchingModel.MATCH_FUZZY:
         from rapidfuzz import fuzz
 
         match = re.sub(r"[^\w\s]", "", matching_model.match)
@@ -218,19 +209,16 @@ def matches(matching_model: MatchingModel, document: Document):
             log_reason(
                 matching_model,
                 document,
-                f"parts of the document content somehow match the string "
-                f"{matching_model.match}",
+                f"parts of the document content somehow match the string {matching_model.match}",
             )
             return True
-        else:
-            return False
+        return False
 
-    elif matching_model.matching_algorithm == MatchingModel.MATCH_AUTO:
+    if matching_model.matching_algorithm == MatchingModel.MATCH_AUTO:
         # this is done elsewhere.
         return False
 
-    else:
-        raise NotImplementedError("Unsupported matching algorithm")
+    raise NotImplementedError("Unsupported matching algorithm")
 
 
 def _split_match(matching_model):
@@ -265,24 +253,15 @@ def consumable_document_matches_workflow(
     reason = ""
 
     # Document source vs trigger source
-    if len(trigger.sources) > 0 and document.source not in [
-        int(x) for x in list(trigger.sources)
-    ]:
+    if len(trigger.sources) > 0 and document.source not in [int(x) for x in list(trigger.sources)]:
         reason = (
-            f"Document source {document.source.name} not in"
-            f" {[DocumentSource(int(x)).name for x in trigger.sources]}",
+            f"Document source {document.source.name} not in {[DocumentSource(int(x)).name for x in trigger.sources]}",
         )
         trigger_matched = False
 
     # Document mail rule vs trigger mail rule
-    if (
-        trigger.filter_mailrule is not None
-        and document.mailrule_id != trigger.filter_mailrule.pk
-    ):
-        reason = (
-            f"Document mail rule {document.mailrule_id}"
-            f" != {trigger.filter_mailrule.pk}",
-        )
+    if trigger.filter_mailrule is not None and document.mailrule_id != trigger.filter_mailrule.pk:
+        reason = (f"Document mail rule {document.mailrule_id} != {trigger.filter_mailrule.pk}",)
         trigger_matched = False
 
     # Document filename vs trigger filename
@@ -294,10 +273,7 @@ def consumable_document_matches_workflow(
             trigger.filter_filename.lower(),
         )
     ):
-        reason = (
-            f"Document filename {document.original_file.name} does not match"
-            f" {trigger.filter_filename.lower()}",
-        )
+        reason = (f"Document filename {document.original_file.name} does not match {trigger.filter_filename.lower()}",)
         trigger_matched = False
 
     # Document path vs trigger path
@@ -309,10 +285,7 @@ def consumable_document_matches_workflow(
             trigger.filter_path,
         )
     ):
-        reason = (
-            f"Document path {document.original_file}"
-            f" does not match {trigger.filter_path}",
-        )
+        reason = (f"Document path {document.original_file} does not match {trigger.filter_path}",)
         trigger_matched = False
 
     return (trigger_matched, reason)
@@ -334,9 +307,7 @@ def existing_document_matches_workflow(
         trigger,
         document,
     ):
-        reason = (
-            f"Document content matching settings for algorithm '{trigger.matching_algorithm}' did not match",
-        )
+        reason = (f"Document content matching settings for algorithm '{trigger.matching_algorithm}' did not match",)
         trigger_matched = False
 
     # Document tags vs trigger has_tags
@@ -347,30 +318,17 @@ def existing_document_matches_workflow(
         ).count()
         == 0
     ):
-        reason = (
-            f"Document tags {document.tags.all()} do not include"
-            f" {trigger.filter_has_tags.all()}",
-        )
+        reason = (f"Document tags {document.tags.all()} do not include {trigger.filter_has_tags.all()}",)
         trigger_matched = False
 
     # Document correspondent vs trigger has_correspondent
-    if (
-        trigger.filter_has_correspondent is not None
-        and document.correspondent != trigger.filter_has_correspondent
-    ):
-        reason = (
-            f"Document correspondent {document.correspondent} does not match {trigger.filter_has_correspondent}",
-        )
+    if trigger.filter_has_correspondent is not None and document.correspondent != trigger.filter_has_correspondent:
+        reason = (f"Document correspondent {document.correspondent} does not match {trigger.filter_has_correspondent}",)
         trigger_matched = False
 
     # Document document_type vs trigger has_document_type
-    if (
-        trigger.filter_has_document_type is not None
-        and document.document_type != trigger.filter_has_document_type
-    ):
-        reason = (
-            f"Document doc type {document.document_type} does not match {trigger.filter_has_document_type}",
-        )
+    if trigger.filter_has_document_type is not None and document.document_type != trigger.filter_has_document_type:
+        reason = (f"Document doc type {document.document_type} does not match {trigger.filter_has_document_type}",)
         trigger_matched = False
 
     # Document original_filename vs trigger filename
@@ -383,10 +341,7 @@ def existing_document_matches_workflow(
             trigger.filter_filename.lower(),
         )
     ):
-        reason = (
-            f"Document filename {document.original_filename} does not match"
-            f" {trigger.filter_filename.lower()}",
-        )
+        reason = (f"Document filename {document.original_filename} does not match {trigger.filter_filename.lower()}",)
         trigger_matched = False
 
     return (trigger_matched, reason)
@@ -465,8 +420,7 @@ def document_matches_workflow(
                 logger.info(f"Document matched {trigger} from {workflow}")
                 # matched, bail early
                 return True
-            else:
-                logger.info(f"Document did not match {workflow}")
-                logger.debug(reason)
+            logger.info(f"Document did not match {workflow}")
+            logger.debug(reason)
 
     return trigger_matched

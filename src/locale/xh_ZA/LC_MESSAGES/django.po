@@ -695,4 +695,3 @@ msgstr "crwdns2834:0crwdne2834:0"
 #: paperless_mail/models.py:216
 msgid "assign this correspondent"
 msgstr "crwdns2836:0crwdne2836:0"
-

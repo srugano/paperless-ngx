@@ -17,33 +17,15 @@ class TestSanityCheck(DirectoriesMixin, TestCase):
         with filelock.FileLock(settings.MEDIA_LOCK):
             # just make sure that the lockfile is present.
             shutil.copy(
-                (
-                    Path(__file__).parent
-                    / "samples"
-                    / "documents"
-                    / "originals"
-                    / "0000001.pdf"
-                ),
+                (Path(__file__).parent / "samples" / "documents" / "originals" / "0000001.pdf"),
                 Path(self.dirs.originals_dir) / "0000001.pdf",
             )
             shutil.copy(
-                (
-                    Path(__file__).parent
-                    / "samples"
-                    / "documents"
-                    / "archive"
-                    / "0000001.pdf"
-                ),
+                (Path(__file__).parent / "samples" / "documents" / "archive" / "0000001.pdf"),
                 Path(self.dirs.archive_dir) / "0000001.pdf",
             )
             shutil.copy(
-                (
-                    Path(__file__).parent
-                    / "samples"
-                    / "documents"
-                    / "thumbnails"
-                    / "0000001.webp"
-                ),
+                (Path(__file__).parent / "samples" / "documents" / "thumbnails" / "0000001.webp"),
                 Path(self.dirs.thumbnail_dir) / "0000001.webp",
             )
 

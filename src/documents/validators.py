@@ -24,7 +24,7 @@ def uri_validator(value: str, allowed_schemes: set[str] | None = None) -> None:
                 _(f"Unable to parse URI {value}, missing scheme"),
                 params={"value": value},
             )
-        elif not parts.netloc and not parts.path:
+        if not parts.netloc and not parts.path:
             raise ValidationError(
                 _(f"Unable to parse URI {value}, missing net location or path"),
                 params={"value": value},

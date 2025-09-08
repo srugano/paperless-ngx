@@ -1,14 +1,14 @@
 {% extends "paperless-ngx/base.html" %}
-{% load i18n allauth %}
+{% load allauth i18n %}
 
 {% block head_title %}
-    {% trans "Paperless-ngx sign up" %}
+    {% translate "Paperless-ngx sign up" %}
 {% endblock head_title %}
 
 {% block form_top_content %}
 		{% if not FIRST_INSTALL %}
 			<p>
-					{% blocktrans %}Already have an account? <a href="{{ login_url }}">Sign in</a>{% endblocktrans %}
+					{% blocktranslate %}Already have an account? <a href="{{ login_url }}">Sign in</a>{% endblocktranslate %}
 			</p>
 		{% endif %}
 {% endblock form_top_content %}
@@ -16,7 +16,7 @@
 {% block form_content %}
 		{% if FIRST_INSTALL %}
 			<p>
-				{% blocktrans %}Note: This is the first user account for this installation and will be granted superuser privileges.{% endblocktrans %}
+				{% blocktranslate %}Note: This is the first user account for this installation and will be granted superuser privileges.{% endblocktranslate %}
 			</p>
 		{% endif %}
     {% translate "Username" as i18n_username %}

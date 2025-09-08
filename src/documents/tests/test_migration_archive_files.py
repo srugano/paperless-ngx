@@ -35,8 +35,7 @@ def archive_path_old(self) -> Path:
 def archive_path_new(doc):
     if doc.archive_filename is not None:
         return Path(settings.ARCHIVE_DIR) / str(doc.archive_filename)
-    else:
-        return None
+    return None
 
 
 def source_path(doc):
@@ -97,12 +96,8 @@ def make_test_document(
 
 simple_jpg = Path(__file__).parent / "samples" / "simple.jpg"
 simple_pdf = Path(__file__).parent / "samples" / "simple.pdf"
-simple_pdf2 = (
-    Path(__file__).parent / "samples" / "documents" / "originals" / "0000002.pdf"
-)
-simple_pdf3 = (
-    Path(__file__).parent / "samples" / "documents" / "originals" / "0000003.pdf"
-)
+simple_pdf2 = Path(__file__).parent / "samples" / "documents" / "originals" / "0000002.pdf"
+simple_pdf3 = Path(__file__).parent / "samples" / "documents" / "originals" / "0000003.pdf"
 simple_txt = Path(__file__).parent / "samples" / "simple.txt"
 simple_png = Path(__file__).parent / "samples" / "simple-noalpha.png"
 simple_png2 = Path(__file__).parent / "examples" / "no-text.png"
@@ -372,8 +367,7 @@ class TestMigrateArchiveFilesErrors(DirectoriesMixin, TestMigrations):
             len(
                 list(
                     filter(
-                        lambda log: "Unable to regenerate archive document for ID:"
-                        in log,
+                        lambda log: "Unable to regenerate archive document for ID:" in log,
                         capture.output,
                     ),
                 ),
@@ -421,8 +415,7 @@ class TestMigrateArchiveFilesErrors(DirectoriesMixin, TestMigrations):
             len(
                 list(
                     filter(
-                        lambda log: "Parser did not return an archive document for document"
-                        in log,
+                        lambda log: "Parser did not return an archive document for document" in log,
                         capture.output,
                     ),
                 ),

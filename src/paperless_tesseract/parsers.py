@@ -158,11 +158,7 @@ class RasterisedDocumentParser(DocumentParser):
     ) -> str | None:
         # When re-doing OCR, the sidecar contains ONLY the new text, not
         # the whole text, so do not utilize it in that case
-        if (
-            sidecar_file is not None
-            and sidecar_file.is_file()
-            and self.settings.mode != "redo"
-        ):
+        if sidecar_file is not None and sidecar_file.is_file() and self.settings.mode != "redo":
             text = self.read_file_handle_unicode_errors(sidecar_file)
 
             if "[OCR skipped on page" not in text:
@@ -170,8 +166,7 @@ class RasterisedDocumentParser(DocumentParser):
                 # The sidecar file will only contain text for OCR'ed pages.
                 self.log.debug("Using text from sidecar file")
                 return post_process_text(text)
-            else:
-                self.log.debug("Incomplete sidecar file: discarding.")
+            self.log.debug("Incomplete sidecar file: discarding.")
 
         # no success with the sidecar file, try PDF
 
@@ -233,9 +228,7 @@ class RasterisedDocumentParser(DocumentParser):
         }
 
         if "pdfa" in ocrmypdf_args["output_type"]:
-            ocrmypdf_args["color_conversion_strategy"] = (
-                self.settings.color_conversion_strategy
-            )
+            ocrmypdf_args["color_conversion_strategy"] = self.settings.color_conversion_strategy
 
         if self.settings.mode == ModeChoices.FORCE or safe_fallback:
             ocrmypdf_args["force_ocr"] = True
@@ -281,8 +274,7 @@ class RasterisedDocumentParser(DocumentParser):
 
             if self.has_alpha(input_file):
                 self.log.info(
-                    f"Removing alpha layer from {input_file} "
-                    "for compatibility with img2pdf",
+                    f"Removing alpha layer from {input_file} for compatibility with img2pdf",
                 )
                 # Replace the input file with the non-alpha
                 ocrmypdf_args["input_file"] = self.remove_alpha(input_file)
@@ -310,14 +302,10 @@ class RasterisedDocumentParser(DocumentParser):
                 ocrmypdf_args = {**ocrmypdf_args, **self.settings.user_args}
             except Exception as e:
                 self.log.warning(
-                    f"There is an issue with PAPERLESS_OCR_USER_ARGS, so "
-                    f"they will not be used. Error: {e}",
+                    f"There is an issue with PAPERLESS_OCR_USER_ARGS, so they will not be used. Error: {e}",
                 )
 
-        if (
-            self.settings.max_image_pixel is not None
-            and self.settings.max_image_pixel >= 0
-        ):
+        if self.settings.max_image_pixel is not None and self.settings.max_image_pixel >= 0:
             # Convert pixels to mega-pixels and provide to ocrmypdf
             max_pixels_mpixels = self.settings.max_image_pixel / 1_000_000.0
             msg = (
@@ -337,9 +325,7 @@ class RasterisedDocumentParser(DocumentParser):
 
         if mime_type == "application/pdf":
             text_original = self.extract_text(None, document_path)
-            original_has_text = (
-                text_original is not None and len(text_original) > VALID_TEXT_LENGTH
-            )
+            original_has_text = text_original is not None and len(text_original) > VALID_TEXT_LENGTH
         else:
             text_original = None
             original_has_text = False
@@ -392,8 +378,7 @@ class RasterisedDocumentParser(DocumentParser):
                 raise NoTextFoundException("No text was found in the original document")
         except (DigitalSignatureError, EncryptedPdfError):
             self.log.warning(
-                "This file is encrypted and/or signed, OCR is impossible. Using "
-                "any text present in the original file.",
+                "This file is encrypted and/or signed, OCR is impossible. Using any text present in the original file.",
             )
             if original_has_text:
                 self.text = text_original
@@ -409,8 +394,7 @@ class RasterisedDocumentParser(DocumentParser):
             ) from e
         except (NoTextFoundException, InputFileError) as e:
             self.log.warning(
-                f"Encountered an error while running OCR: {e!s}. "
-                f"Attempting force OCR to get the text.",
+                f"Encountered an error while running OCR: {e!s}. Attempting force OCR to get the text.",
             )
 
             archive_path_fallback = Path(self.tempdir) / "archive-fallback.pdf"

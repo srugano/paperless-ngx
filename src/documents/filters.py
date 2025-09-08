@@ -145,10 +145,9 @@ class InboxFilter(Filter):
     def filter(self, qs, value):
         if value == "true":
             return qs.filter(tags__is_inbox_tag=True)
-        elif value == "false":
+        if value == "false":
             return qs.exclude(tags__is_inbox_tag=True)
-        else:
-            return qs
+        return qs
 
 
 @extend_schema_field(serializers.CharField)
@@ -156,8 +155,7 @@ class TitleContentFilter(Filter):
     def filter(self, qs, value):
         if value:
             return qs.filter(Q(title__icontains=value) | Q(content__icontains=value))
-        else:
-            return qs
+        return qs
 
 
 @extend_schema_field(serializers.BooleanField)
@@ -231,16 +229,14 @@ class CustomFieldsFilter(Filter):
                 | qs.filter(custom_fields__value_document_ids__icontains=value)
                 | qs.filter(custom_fields__value_select__in=option_ids)
             )
-        else:
-            return qs
+        return qs
 
 
 class MimeTypeFilter(Filter):
     def filter(self, qs, value):
         if value:
             return qs.filter(mime_type__icontains=value)
-        else:
-            return qs
+        return qs
 
 
 class SelectField(serializers.CharField):
@@ -251,11 +247,7 @@ class SelectField(serializers.CharField):
     def to_internal_value(self, data):
         # If the supplied value is the option label instead of the ID
         try:
-            data = next(
-                option.get("id")
-                for option in self._options
-                if option.get("label") == data
-            )
+            data = next(option.get("id") for option in self._options if option.get("label") == data)
         except StopIteration:
             pass
         return super().to_internal_value(data)
@@ -397,7 +389,7 @@ class CustomFieldQueryParser:
             if isinstance(expr, list | tuple):
                 if len(expr) == 2:
                     return self._parse_logical_expr(*expr)
-                elif len(expr) == 3:
+                if len(expr) == 3:
                     return self._parse_atom(*expr)
             raise serializers.ValidationError(
                 [_("Invalid custom field query expression")],
@@ -412,9 +404,7 @@ class CustomFieldQueryParser:
             raise serializers.ValidationError(
                 [_("Invalid expression list. Must be nonempty.")],
             )
-        return [
-            self._parse_expr(expr, validation_prefix=i) for i, expr in enumerate(exprs)
-        ]
+        return [self._parse_expr(expr, validation_prefix=i) for i, expr in enumerate(exprs)]
 
     def _parse_logical_expr(self, op, args) -> Q:
         """
@@ -458,19 +448,13 @@ class CustomFieldQueryParser:
         )
 
         # Needed because not all DB backends support Array __contains
-        if (
-            custom_field.data_type == CustomField.FieldDataType.DOCUMENTLINK
-            and op == "contains"
-        ):
+        if custom_field.data_type == CustomField.FieldDataType.DOCUMENTLINK and op == "contains":
             return self._parse_atom_doc_link_contains(custom_field, value)
 
         value_field_name = CustomFieldInstance.get_value_field_name(
             custom_field.data_type,
         )
-        if (
-            custom_field.data_type == CustomField.FieldDataType.MONETARY
-            and op in self.EXPR_BY_CATEGORY["arithmetic"]
-        ):
+        if custom_field.data_type == CustomField.FieldDataType.MONETARY and op in self.EXPR_BY_CATEGORY["arithmetic"]:
             value_field_name = "value_monetary_amount"
         has_field = Q(custom_fields__field=custom_field)
 
@@ -503,9 +487,7 @@ class CustomFieldQueryParser:
         if id_or_name in self._custom_fields:
             return self._custom_fields[id_or_name]
 
-        kwargs = (
-            {"id": id_or_name} if isinstance(id_or_name, int) else {"name": id_or_name}
-        )
+        kwargs = {"id": id_or_name} if isinstance(id_or_name, int) else {"name": id_or_name}
         try:
             custom_field = CustomField.objects.get(**kwargs)
         except CustomField.DoesNotExist:
@@ -536,10 +518,7 @@ class CustomFieldQueryParser:
 
         # Check prefix
         if prefix is not None:
-            if (
-                prefix in self.DATE_COMPONENTS
-                and custom_field.data_type == CustomField.FieldDataType.DATE
-            ):
+            if prefix in self.DATE_COMPONENTS and custom_field.data_type == CustomField.FieldDataType.DATE:
                 pass  # ok - e.g., "year__exact" for date field
             else:
                 supported = False  # anything else is invalid
@@ -564,10 +543,7 @@ class CustomFieldQueryParser:
         if op in ("isnull", "exists"):
             # `isnull` takes either True or False regardless of the data_type.
             field = serializers.BooleanField()
-        elif (
-            custom_field.data_type == CustomField.FieldDataType.DATE
-            and prefix in self.DATE_COMPONENTS
-        ):
+        elif custom_field.data_type == CustomField.FieldDataType.DATE and prefix in self.DATE_COMPONENTS:
             # DateField admits queries in the form of `year__exact`, etc. These take integers.
             field = serializers.IntegerField()
         elif custom_field.data_type == CustomField.FieldDataType.DOCUMENTLINK:
@@ -637,7 +613,7 @@ class CustomFieldQueryParser:
         )
 
         # Check if any of the requested IDs are missing.
-        missing_ids = set(value) - set(link.document_id for link in links)
+        missing_ids = set(value) - {link.document_id for link in links}
         if missing_ids:
             # The result should be an empty set in this case.
             return Q(id__in=[])

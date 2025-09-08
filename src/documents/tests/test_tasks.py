@@ -212,20 +212,12 @@ class TestUpdateContent(DirectoriesMixin, TestCase):
         """
         sample1 = self.dirs.scratch_dir / "sample.pdf"
         shutil.copy(
-            Path(__file__).parent
-            / "samples"
-            / "documents"
-            / "originals"
-            / "0000001.pdf",
+            Path(__file__).parent / "samples" / "documents" / "originals" / "0000001.pdf",
             sample1,
         )
         sample1_archive = self.dirs.archive_dir / "sample_archive.pdf"
         shutil.copy(
-            Path(__file__).parent
-            / "samples"
-            / "documents"
-            / "originals"
-            / "0000001.pdf",
+            Path(__file__).parent / "samples" / "documents" / "originals" / "0000001.pdf",
             sample1_archive,
         )
         doc = Document.objects.create(
@@ -253,11 +245,7 @@ class TestUpdateContent(DirectoriesMixin, TestCase):
         """
         sample1 = self.dirs.scratch_dir / "sample.pdf"
         shutil.copy(
-            Path(__file__).parent
-            / "samples"
-            / "documents"
-            / "originals"
-            / "0000001.pdf",
+            Path(__file__).parent / "samples" / "documents" / "originals" / "0000001.pdf",
             sample1,
         )
         doc = Document.objects.create(

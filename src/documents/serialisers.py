@@ -110,13 +110,7 @@ class MatchingModelSerializer(serializers.ModelSerializer):
             "name",
             self.instance.name if hasattr(self.instance, "name") else None,
         )
-        owner = (
-            data["owner"]
-            if "owner" in data
-            else self.user
-            if hasattr(self, "user")
-            else None
-        )
+        owner = data["owner"] if "owner" in data else self.user if hasattr(self, "user") else None
         pk = self.instance.pk if hasattr(self.instance, "pk") else None
         if ("name" in data or "owner" in data) and self.Meta.model.objects.filter(
             name=name,
@@ -318,10 +312,7 @@ class OwnedObjectSerializer(
         return (
             obj.owner is None
             or obj.owner == self.user
-            or (
-                self.user is not None
-                and checker.has_perm(f"change_{obj.__class__.__name__.lower()}", obj)
-            )
+            or (self.user is not None and checker.has_perm(f"change_{obj.__class__.__name__.lower()}", obj))
         )
 
     @staticmethod
@@ -335,7 +326,7 @@ class OwnedObjectSerializer(
             return set()
 
         ctype = ContentType.objects.get_for_model(first_obj)
-        object_pks = list(obj.pk for obj in objects)
+        object_pks = [obj.pk for obj in objects]
         pk_type = type(first_obj.pk)
 
         def get_pks_for_permission_type(model):
@@ -380,11 +371,7 @@ class OwnedObjectSerializer(
         # workaround for https://github.com/encode/django-rest-framework/issues/9358
         if "owner" in validated_data and "name" in self.Meta.fields:
             name = validated_data.get("name", instance.name if instance else None)
-            objects = (
-                self.Meta.model.objects.exclude(pk=instance.pk)
-                if instance
-                else self.Meta.model.objects.all()
-            )
+            objects = self.Meta.model.objects.exclude(pk=instance.pk) if instance else self.Meta.model.objects.all()
             not_unique = objects.filter(
                 owner=validated_data["owner"],
                 name=name,
@@ -397,10 +384,7 @@ class OwnedObjectSerializer(
     def create(self, validated_data):
         # default to current user if not set
         request = self.context.get("request")
-        if (
-            "owner" not in validated_data
-            or (request is not None and "owner" not in request.data)
-        ) and self.user:
+        if ("owner" not in validated_data or (request is not None and "owner" not in request.data)) and self.user:
             validated_data["owner"] = self.user
         permissions = None
         if "set_permissions" in validated_data:
@@ -530,9 +514,7 @@ class TagSerializer(MatchingModelSerializer, OwnedObjectSerializer):
             h = obj.color.lstrip("#")
             rgb = tuple(int(h[i : i + 2], 16) / 256 for i in (0, 2, 4))
             luminance = math.sqrt(
-                0.299 * math.pow(rgb[0], 2)
-                + 0.587 * math.pow(rgb[1], 2)
-                + 0.114 * math.pow(rgb[2], 2),
+                0.299 * math.pow(rgb[0], 2) + 0.587 * math.pow(rgb[1], 2) + 0.114 * math.pow(rgb[2], 2),
             )
             return "#ffffff" if luminance < 0.53 else "#000000"
         except ValueError:
@@ -632,22 +614,15 @@ class CustomFieldSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 {"error": "Object violates name unique constraint"},
             )
-        if (
-            "data_type" in attrs
-            and attrs["data_type"] == CustomField.FieldDataType.SELECT
-        ) or (
-            self.instance
-            and self.instance.data_type == CustomField.FieldDataType.SELECT
+        if ("data_type" in attrs and attrs["data_type"] == CustomField.FieldDataType.SELECT) or (
+            self.instance and self.instance.data_type == CustomField.FieldDataType.SELECT
         ):
             if (
                 "extra_data" not in attrs
                 or "select_options" not in attrs["extra_data"]
                 or not isinstance(attrs["extra_data"]["select_options"], list)
                 or len(attrs["extra_data"]["select_options"]) == 0
-                or not all(
-                    len(option.get("label", "")) > 0
-                    for option in attrs["extra_data"]["select_options"]
-                )
+                or not all(len(option.get("label", "")) > 0 for option in attrs["extra_data"]["select_options"])
             ):
                 raise serializers.ValidationError(
                     {"error": "extra_data.select_options must be a valid list"},
@@ -696,14 +671,9 @@ class CustomFieldSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         ret = super().to_representation(instance)
 
-        if (
-            self.api_version < 7
-            and instance.data_type == CustomField.FieldDataType.SELECT
-        ):
+        if self.api_version < 7 and instance.data_type == CustomField.FieldDataType.SELECT:
             # Convert the select options with ids to a list of strings
-            ret["extra_data"]["select_options"] = [
-                option["label"] for option in ret["extra_data"]["select_options"]
-            ]
+            ret["extra_data"]["select_options"] = [option["label"] for option in ret["extra_data"]["select_options"]]
 
         return ret
 
@@ -763,17 +733,11 @@ class CustomFieldInstanceSerializer(serializers.ModelSerializer):
         data = super().validate(data)
         field: CustomField = data["field"]
         if "value" in data and data["value"] is not None:
-            if (
-                field.data_type == CustomField.FieldDataType.URL
-                and len(data["value"]) > 0
-            ):
+            if field.data_type == CustomField.FieldDataType.URL and len(data["value"]) > 0:
                 uri_validator(data["value"])
             elif field.data_type == CustomField.FieldDataType.INT:
                 integer_validator(data["value"])
-            elif (
-                field.data_type == CustomField.FieldDataType.MONETARY
-                and data["value"] != ""
-            ):
+            elif field.data_type == CustomField.FieldDataType.MONETARY and data["value"] != "":
                 try:
                     # First try to validate as a number from legacy format
                     DecimalValidator(max_digits=12, decimal_places=2)(
@@ -790,11 +754,7 @@ class CustomFieldInstanceSerializer(serializers.ModelSerializer):
             elif field.data_type == CustomField.FieldDataType.SELECT:
                 select_options = field.extra_data["select_options"]
                 try:
-                    next(
-                        option
-                        for option in select_options
-                        if option["id"] == data["value"]
-                    )
+                    next(option for option in select_options if option["id"] == data["value"])
                 except Exception:
                     raise serializers.ValidationError(
                         f"Value must be an id of an element in {select_options}",
@@ -831,19 +791,14 @@ class CustomFieldInstanceSerializer(serializers.ModelSerializer):
         ):
             # Convert the index of the option in the field.extra_data["select_options"]
             # list to the options unique id
-            ret["value"] = ret.get("field").extra_data["select_options"][ret["value"]][
-                "id"
-            ]
+            ret["value"] = ret.get("field").extra_data["select_options"][ret["value"]]["id"]
 
         return ret
 
     def to_representation(self, instance):
         ret = super().to_representation(instance)
 
-        if (
-            self.get_api_version() < 7
-            and instance.field.data_type == CustomField.FieldDataType.SELECT
-        ):
+        if self.get_api_version() < 7 and instance.field.data_type == CustomField.FieldDataType.SELECT:
             # return the index of the option in the field.extra_data["select_options"] list
             ret["value"] = next(
                 (
@@ -944,8 +899,7 @@ class DocumentSerializer(
     def get_archived_file_name(self, obj) -> str | None:
         if obj.has_archive_version:
             return obj.get_public_filename(archive=True)
-        else:
-            return None
+        return None
 
     def to_representation(self, instance):
         doc = super().to_representation(instance)
@@ -970,11 +924,7 @@ class DocumentSerializer(
         return doc
 
     def to_internal_value(self, data):
-        if (
-            "created" in data
-            and isinstance(data["created"], str)
-            and ":" in data["created"]
-        ):
+        if "created" in data and isinstance(data["created"], str) and ":" in data["created"]:
             # Handle old format of isoformat datetime string
             parsed = parse_datetime(data["created"])
             if parsed:
@@ -1011,9 +961,7 @@ class DocumentSerializer(
             )
             validated_data.pop("created_date")
         if instance.custom_fields.count() > 0 and "custom_fields" in validated_data:
-            incoming_custom_fields = [
-                field["field"] for field in validated_data["custom_fields"]
-            ]
+            incoming_custom_fields = [field["field"] for field in validated_data["custom_fields"]]
             for custom_field_instance in instance.custom_fields.filter(
                 field__data_type=CustomField.FieldDataType.DOCUMENTLINK,
             ):
@@ -1030,11 +978,7 @@ class DocumentSerializer(
                         )
         if validated_data.get("remove_inbox_tags"):
             tag_ids_being_added = (
-                [
-                    tag.id
-                    for tag in validated_data["tags"]
-                    if tag not in instance.tags.all()
-                ]
+                [tag.id for tag in validated_data["tags"] if tag not in instance.tags.all()]
                 if "tags" in validated_data
                 else []
             )
@@ -1043,16 +987,10 @@ class DocumentSerializer(
             )
             if "tags" in validated_data:
                 validated_data["tags"] = [
-                    tag
-                    for tag in validated_data["tags"]
-                    if tag not in inbox_tags_not_being_added
+                    tag for tag in validated_data["tags"] if tag not in inbox_tags_not_being_added
                 ]
             else:
-                validated_data["tags"] = [
-                    tag
-                    for tag in instance.tags.all()
-                    if tag not in inbox_tags_not_being_added
-                ]
+                validated_data["tags"] = [tag for tag in instance.tags.all() if tag not in inbox_tags_not_being_added]
         if settings.AUDIT_LOG_ENABLED:
             with set_actor(self.user):
                 super().update(instance, validated_data)
@@ -1067,10 +1005,7 @@ class DocumentSerializer(
 
         # return full permissions if we're doing a PATCH or PUT
         context = kwargs.get("context")
-        if context is not None and (
-            context.get("request").method == "PATCH"
-            or context.get("request").method == "PUT"
-        ):
+        if context is not None and (context.get("request").method == "PATCH" or context.get("request").method == "PUT"):
             kwargs["full_perms"] = True
 
         super().__init__(*args, **kwargs)
@@ -1156,9 +1091,7 @@ class SearchResultSerializer(DocumentSerializer):
         r["__search_hit__"] = {
             "score": hit.score,
             "highlights": hit.highlights("content", text=document.content),
-            "note_highlights": (
-                hit.highlights("notes", text=notes) if document else None
-            ),
+            "note_highlights": (hit.highlights("notes", text=notes) if document else None),
             "rank": hit.rank,
         }
 
@@ -1199,9 +1132,7 @@ class SavedViewSerializer(OwnedObjectSerializer):
         attrs = super().validate(attrs)
         if "display_fields" in attrs and attrs["display_fields"] is not None:
             for field in attrs["display_fields"]:
-                if (
-                    SavedView.DisplayFields.CUSTOM_FIELD[:-2] in field
-                ):  # i.e. check for 'custom_field_' prefix
+                if SavedView.DisplayFields.CUSTOM_FIELD[:-2] in field:  # i.e. check for 'custom_field_' prefix
                     field_id = int(re.search(r"\d+", field)[0])
                     if not CustomField.objects.filter(id=field_id).exists():
                         raise serializers.ValidationError(
@@ -1326,9 +1257,7 @@ class BulkEditSerializer(
                 raise serializers.ValidationError(
                     f"{name} must be a list of integers or a dict of id:value pairs, see the log for details",
                 )
-        elif not isinstance(custom_fields, list) or not all(
-            isinstance(i, int) for i in ids
-        ):
+        elif not isinstance(custom_fields, list) or not all(isinstance(i, int) for i in ids):
             raise serializers.ValidationError(
                 f"{name} must be a list of integers or a dict of id:value pairs",
             )
@@ -1341,37 +1270,37 @@ class BulkEditSerializer(
     def validate_method(self, method):
         if method == "set_correspondent":
             return bulk_edit.set_correspondent
-        elif method == "set_document_type":
+        if method == "set_document_type":
             return bulk_edit.set_document_type
-        elif method == "set_storage_path":
+        if method == "set_storage_path":
             return bulk_edit.set_storage_path
-        elif method == "add_tag":
+        if method == "add_tag":
             return bulk_edit.add_tag
-        elif method == "remove_tag":
+        if method == "remove_tag":
             return bulk_edit.remove_tag
-        elif method == "modify_tags":
+        if method == "modify_tags":
             return bulk_edit.modify_tags
-        elif method == "modify_custom_fields":
+        if method == "modify_custom_fields":
             return bulk_edit.modify_custom_fields
-        elif method == "delete":
+        if method == "delete":
             return bulk_edit.delete
-        elif method == "redo_ocr" or method == "reprocess":
+        if method == "redo_ocr" or method == "reprocess":
             return bulk_edit.reprocess
-        elif method == "set_permissions":
+        if method == "set_permissions":
             return bulk_edit.set_permissions
-        elif method == "rotate":
+        if method == "rotate":
             return bulk_edit.rotate
-        elif method == "merge":
+        if method == "merge":
             return bulk_edit.merge
-        elif method == "split":
+        if method == "split":
             return bulk_edit.split
-        elif method == "delete_pages":
+        if method == "delete_pages":
             return bulk_edit.delete_pages
-        elif method == "edit_pdf":
+        if method == "edit_pdf":
             return bulk_edit.edit_pdf
-        else:  # pragma: no cover
-            # This will never happen as it is handled by the ChoiceField
-            raise serializers.ValidationError("Unsupported method.")
+        # pragma: no cover
+        # This will never happen as it is handled by the ChoiceField
+        raise serializers.ValidationError("Unsupported method.")
 
     def _validate_parameters_tags(self, parameters):
         if "tag" in parameters:
@@ -1467,10 +1396,7 @@ class BulkEditSerializer(
 
     def _validate_parameters_rotate(self, parameters):
         try:
-            if (
-                "degrees" not in parameters
-                or not float(parameters["degrees"]).is_integer()
-            ):
+            if "degrees" not in parameters or not float(parameters["degrees"]).is_integer():
                 raise serializers.ValidationError("invalid rotation degrees")
         except ValueError:
             raise serializers.ValidationError("invalid rotation degrees")
@@ -1484,13 +1410,12 @@ class BulkEditSerializer(
             for doc in docs:
                 if "-" in doc:
                     pages.append(
-                        [
-                            x
-                            for x in range(
+                        list(
+                            range(
                                 int(doc.split("-")[0]),
                                 int(doc.split("-")[1]) + 1,
                             )
-                        ],
+                        ),
                     )
                 else:
                     pages.append([int(doc)])
@@ -1687,11 +1612,8 @@ class PostDocumentSerializer(serializers.Serializer):
         mime_type = magic.from_buffer(document_data, mime=True)
 
         if not is_mime_type_supported(mime_type):
-            if (
-                mime_type in settings.CONSUMER_PDF_RECOVERABLE_MIME_TYPES
-                and document.name.endswith(
-                    ".pdf",
-                )
+            if mime_type in settings.CONSUMER_PDF_RECOVERABLE_MIME_TYPES and document.name.endswith(
+                ".pdf",
             ):
                 # If the file is an invalid PDF, we can try to recover it later in the consumer
                 mime_type = "application/pdf"
@@ -1705,37 +1627,33 @@ class PostDocumentSerializer(serializers.Serializer):
     def validate_correspondent(self, correspondent):
         if correspondent:
             return correspondent.id
-        else:
-            return None
+        return None
 
     def validate_document_type(self, document_type):
         if document_type:
             return document_type.id
-        else:
-            return None
+        return None
 
     def validate_storage_path(self, storage_path):
         if storage_path:
             return storage_path.id
-        else:
-            return None
+        return None
 
     def validate_tags(self, tags):
         if tags:
             return [tag.id for tag in tags]
-        else:
-            return None
+        return None
 
     def validate_custom_fields(self, custom_fields):
         if custom_fields:
             return [custom_field.id for custom_field in custom_fields]
-        else:
-            return None
+        return None
 
     def validate_created(self, created):
         # support datetime format for created for backwards compatibility
         if isinstance(created, datetime):
             return created.date()
+        return None
 
 
 class BulkDownloadSerializer(DocumentListSerializer):
@@ -1828,11 +1746,10 @@ class UiSettingsViewSerializer(serializers.ModelSerializer):
         return settings
 
     def create(self, validated_data):
-        ui_settings = UiSettings.objects.update_or_create(
+        return UiSettings.objects.update_or_create(
             user=validated_data.get("user"),
             defaults={"settings": validated_data.get("settings", None)},
         )
-        return ui_settings
 
 
 class TasksViewSerializer(OwnedObjectSerializer):
@@ -1865,11 +1782,7 @@ class TasksViewSerializer(OwnedObjectSerializer):
                 case states.SUCCESS:
                     re = self.created_doc_re
                 case states.FAILURE:
-                    re = (
-                        self.duplicate_doc_re
-                        if "existing document is in the trash" not in obj.result
-                        else None
-                    )
+                    re = self.duplicate_doc_re if "existing document is in the trash" not in obj.result else None
             if re is not None:
                 try:
                     result = re.search(obj.result).group(1)
@@ -2063,17 +1976,9 @@ class WorkflowTriggerSerializer(serializers.ModelSerializer):
 
     def validate(self, attrs):
         # Empty strings treated as None to avoid unexpected behavior
-        if (
-            "filter_filename" in attrs
-            and attrs["filter_filename"] is not None
-            and len(attrs["filter_filename"]) == 0
-        ):
+        if "filter_filename" in attrs and attrs["filter_filename"] is not None and len(attrs["filter_filename"]) == 0:
             attrs["filter_filename"] = None
-        if (
-            "filter_path" in attrs
-            and attrs["filter_path"] is not None
-            and len(attrs["filter_path"]) == 0
-        ):
+        if "filter_path" in attrs and attrs["filter_path"] is not None and len(attrs["filter_path"]) == 0:
             attrs["filter_path"] = None
 
         trigger_type = attrs.get("type", getattr(self.instance, "type", None))
@@ -2095,9 +2000,7 @@ class WorkflowTriggerSerializer(serializers.ModelSerializer):
         Convert sources to strings to handle django-multiselectfield v1.0 changes
         """
         if trigger and "sources" in trigger:
-            trigger["sources"] = [
-                str(s.value if hasattr(s, "value") else s) for s in trigger["sources"]
-            ]
+            trigger["sources"] = [str(s.value if hasattr(s, "value") else s) for s in trigger["sources"]]
 
     def create(self, validated_data):
         WorkflowTriggerSerializer.normalize_workflow_trigger_sources(validated_data)
@@ -2226,20 +2129,12 @@ class WorkflowActionSerializer(serializers.ModelSerializer):
                         {"assign_title": f'Invalid f-string detected: "{e.args[0]}"'},
                     )
 
-        if (
-            "type" in attrs
-            and attrs["type"] == WorkflowAction.WorkflowActionType.EMAIL
-            and "email" not in attrs
-        ):
+        if "type" in attrs and attrs["type"] == WorkflowAction.WorkflowActionType.EMAIL and "email" not in attrs:
             raise serializers.ValidationError(
                 "Email data is required for email actions",
             )
 
-        if (
-            "type" in attrs
-            and attrs["type"] == WorkflowAction.WorkflowActionType.WEBHOOK
-            and "webhook" not in attrs
-        ):
+        if "type" in attrs and attrs["type"] == WorkflowAction.WorkflowActionType.WEBHOOK and "webhook" not in attrs:
             raise serializers.ValidationError(
                 "Webhook data is required for webhook actions",
             )

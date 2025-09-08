@@ -1042,7 +1042,9 @@ class TestWorkflows(
             )
             expected_str = f"Document did not match {w}"
             self.assertIn(expected_str, cm.output[0])
-            expected_str = f"Document content matching settings for algorithm '{trigger.matching_algorithm}' did not match"
+            expected_str = (
+                f"Document content matching settings for algorithm '{trigger.matching_algorithm}' did not match"
+            )
             self.assertIn(expected_str, cm.output[1])
 
     def test_document_added_no_match_tags(self):
@@ -1144,7 +1146,9 @@ class TestWorkflows(
             )
             expected_str = f"Document did not match {w}"
             self.assertIn(expected_str, cm.output[0])
-            expected_str = f"Document correspondent {doc.correspondent} does not match {trigger.filter_has_correspondent}"
+            expected_str = (
+                f"Document correspondent {doc.correspondent} does not match {trigger.filter_has_correspondent}"
+            )
             self.assertIn(expected_str, cm.output[1])
 
     def test_document_added_invalid_title_placeholders(self):
@@ -2872,9 +2876,7 @@ class TestWorkflows(
 
                 self.assertEqual(mock_http.call_count, 1)
 
-                expected_str = (
-                    "Failed attempt sending webhook to http://paperless-ngx.com"
-                )
+                expected_str = "Failed attempt sending webhook to http://paperless-ngx.com"
                 self.assertIn(expected_str, cm.output[0])
 
     @mock.patch("documents.signals.handlers.send_webhook.delay")

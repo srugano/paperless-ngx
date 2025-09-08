@@ -29,8 +29,7 @@ class MailAccount(document_models.ModelWithOwner):
         blank=True,
         null=True,
         help_text=_(
-            "This is usually 143 for unencrypted and STARTTLS "
-            "connections, and 993 for SSL connections.",
+            "This is usually 143 for unencrypted and STARTTLS connections, and 993 for SSL connections.",
         ),
     )
 
@@ -51,8 +50,7 @@ class MailAccount(document_models.ModelWithOwner):
         max_length=256,
         default="UTF-8",
         help_text=_(
-            "The character set to use when communicating with the "
-            "mail server, such as 'UTF-8' or 'US-ASCII'.",
+            "The character set to use when communicating with the mail server, such as 'UTF-8' or 'US-ASCII'.",
         ),
     )
 
@@ -226,8 +224,7 @@ class MailRule(document_models.ModelWithOwner):
         choices=AttachmentProcessing.choices,
         default=AttachmentProcessing.ATTACHMENTS_ONLY,
         help_text=_(
-            "Inline attachments include embedded images, so it's best "
-            "to combine this option with a filename filter.",
+            "Inline attachments include embedded images, so it's best to combine this option with a filename filter.",
         ),
     )
 

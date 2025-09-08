@@ -143,8 +143,7 @@ class TestExportImport(
         )
         if len(f) == 1:
             return f[0]
-        else:
-            raise ValueError(f"document with id {id} does not exist in manifest")
+        raise ValueError(f"document with id {id} does not exist in manifest")
 
     @override_settings(PASSPHRASE="test")
     def _do_export(
@@ -183,9 +182,7 @@ class TestExportImport(
         call_command(*args)
 
         with (self.target / "manifest.json").open() as f:
-            manifest = json.load(f)
-
-        return manifest
+            return json.load(f)
 
     def test_exporter(self, *, use_filename_format=False):
         shutil.rmtree(Path(self.dirs.media_dir) / "documents")
@@ -248,9 +245,7 @@ class TestExportImport(
                 )
 
                 if document_exporter.EXPORTER_ARCHIVE_NAME in element:
-                    fname = (
-                        self.target / element[document_exporter.EXPORTER_ARCHIVE_NAME]
-                    )
+                    fname = self.target / element[document_exporter.EXPORTER_ARCHIVE_NAME]
                     self.assertIsFile(fname)
 
                     with Path(fname).open("rb") as f:
@@ -630,18 +625,14 @@ class TestExportImport(
         has_archive = False
         for element in manifest:
             if element["model"] == "documents.document":
-                has_archive = (
-                    has_archive or document_exporter.EXPORTER_ARCHIVE_NAME in element
-                )
+                has_archive = has_archive or document_exporter.EXPORTER_ARCHIVE_NAME in element
         self.assertTrue(has_archive)
 
         has_archive = False
         manifest = self._do_export(no_archive=True)
         for element in manifest:
             if element["model"] == "documents.document":
-                has_archive = (
-                    has_archive or document_exporter.EXPORTER_ARCHIVE_NAME in element
-                )
+                has_archive = has_archive or document_exporter.EXPORTER_ARCHIVE_NAME in element
         self.assertFalse(has_archive)
 
         with paperless_environment():
@@ -671,20 +662,14 @@ class TestExportImport(
         has_thumbnail = False
         for element in manifest:
             if element["model"] == "documents.document":
-                has_thumbnail = (
-                    has_thumbnail
-                    or document_exporter.EXPORTER_THUMBNAIL_NAME in element
-                )
+                has_thumbnail = has_thumbnail or document_exporter.EXPORTER_THUMBNAIL_NAME in element
         self.assertTrue(has_thumbnail)
 
         has_thumbnail = False
         manifest = self._do_export(no_thumbnail=True)
         for element in manifest:
             if element["model"] == "documents.document":
-                has_thumbnail = (
-                    has_thumbnail
-                    or document_exporter.EXPORTER_THUMBNAIL_NAME in element
-                )
+                has_thumbnail = has_thumbnail or document_exporter.EXPORTER_THUMBNAIL_NAME in element
         self.assertFalse(has_thumbnail)
 
         with paperless_environment():

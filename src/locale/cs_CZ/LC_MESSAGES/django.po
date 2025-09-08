@@ -2091,4 +2091,3 @@ msgstr "stav"
 #: paperless_mail/models.py:363
 msgid "error"
 msgstr "chyba"
-

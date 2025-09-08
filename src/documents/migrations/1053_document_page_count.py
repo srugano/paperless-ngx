@@ -7,7 +7,6 @@ from django.conf import settings
 from django.core.validators import MinValueValidator
 from django.db import migrations
 from django.db import models
-from django.utils.termcolors import colorize as colourise
 
 
 def source_path(self):
@@ -24,21 +23,13 @@ def add_number_of_pages_to_page_count(apps, schema_editor):
         return
 
     for doc in Document.objects.filter(mime_type="application/pdf"):
-        print(
-            "    {} {} {}".format(
-                colourise("*", fg="green"),
-                colourise("Calculating number of pages for", fg="white"),
-                colourise(doc.filename, fg="cyan"),
-            ),
-        )
-
         try:
             with pikepdf.Pdf.open(source_path(doc)) as pdf:
                 if pdf.pages is not None:
                     doc.page_count = len(pdf.pages)
                     doc.save()
-        except Exception as e:  # pragma: no cover
-            print(f"Error retrieving number of pages for {doc.filename}: {e}")
+        except Exception:  # pragma: no cover
+            pass
 
 
 class Migration(migrations.Migration):

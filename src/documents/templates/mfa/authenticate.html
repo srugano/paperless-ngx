@@ -1,10 +1,8 @@
 {% extends "paperless-ngx/base.html" %}
-{% load i18n %}
-{% load allauth %}
-{% load allauth static %}
+{% load allauth i18n static %}
 
 {% block head_title %}
-    {% trans "Paperless-ngx Two-Factor Authentication" %}
+    {% translate "Paperless-ngx Two-Factor Authentication" %}
 {% endblock head_title %}
 
 {% block form_top_content %}

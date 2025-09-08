@@ -2,14 +2,14 @@
 {% load i18n %}
 
 {% block head_title %}
-    {% trans "Paperless-ngx sign in" %}
+    {% translate "Paperless-ngx sign in" %}
 {% endblock head_title %}
 
 {% block form_top_content %}
     <p>
       {% translate "Please sign in." %}
       {% if ACCOUNT_ALLOW_SIGNUPS %}
-          <br/>{% blocktrans %}Don't have an account yet? <a href="{{ signup_url }}">Sign up</a>{% endblocktrans %}
+          <br/>{% blocktranslate %}Don't have an account yet? <a href="{{ signup_url }}">Sign up</a>{% endblocktranslate %}
       {% endif %}
     </p>
 {% endblock form_top_content %}

@@ -479,47 +479,27 @@ class TestPDFActions(DirectoriesMixin, TestCase):
         super().setUp()
         sample1 = self.dirs.scratch_dir / "sample.pdf"
         shutil.copy(
-            Path(__file__).parent
-            / "samples"
-            / "documents"
-            / "originals"
-            / "0000001.pdf",
+            Path(__file__).parent / "samples" / "documents" / "originals" / "0000001.pdf",
             sample1,
         )
         sample1_archive = self.dirs.archive_dir / "sample_archive.pdf"
         shutil.copy(
-            Path(__file__).parent
-            / "samples"
-            / "documents"
-            / "originals"
-            / "0000001.pdf",
+            Path(__file__).parent / "samples" / "documents" / "originals" / "0000001.pdf",
             sample1_archive,
         )
         sample2 = self.dirs.scratch_dir / "sample2.pdf"
         shutil.copy(
-            Path(__file__).parent
-            / "samples"
-            / "documents"
-            / "originals"
-            / "0000002.pdf",
+            Path(__file__).parent / "samples" / "documents" / "originals" / "0000002.pdf",
             sample2,
         )
         sample2_archive = self.dirs.archive_dir / "sample2_archive.pdf"
         shutil.copy(
-            Path(__file__).parent
-            / "samples"
-            / "documents"
-            / "originals"
-            / "0000002.pdf",
+            Path(__file__).parent / "samples" / "documents" / "originals" / "0000002.pdf",
             sample2_archive,
         )
         sample3 = self.dirs.scratch_dir / "sample3.pdf"
         shutil.copy(
-            Path(__file__).parent
-            / "samples"
-            / "documents"
-            / "originals"
-            / "0000003.pdf",
+            Path(__file__).parent / "samples" / "documents" / "originals" / "0000003.pdf",
             sample3,
         )
         self.doc1 = Document.objects.create(
@@ -553,11 +533,7 @@ class TestPDFActions(DirectoriesMixin, TestCase):
         )
         img_doc_archive = self.dirs.archive_dir / "sample_image.pdf"
         shutil.copy(
-            Path(__file__).parent
-            / "samples"
-            / "documents"
-            / "originals"
-            / "0000001.pdf",
+            Path(__file__).parent / "samples" / "documents" / "originals" / "0000001.pdf",
             img_doc_archive,
         )
         self.img_doc = Document.objects.create(
@@ -591,9 +567,7 @@ class TestPDFActions(DirectoriesMixin, TestCase):
             user=user,
         )
 
-        expected_filename = (
-            f"{'_'.join([str(doc_id) for doc_id in doc_ids])[:100]}_merged.pdf"
-        )
+        expected_filename = f"{'_'.join([str(doc_id) for doc_id in doc_ids])[:100]}_merged.pdf"
 
         mock_consume_file.assert_called()
         consume_file_args, _ = mock_consume_file.call_args
@@ -633,9 +607,7 @@ class TestPDFActions(DirectoriesMixin, TestCase):
         result = bulk_edit.merge(doc_ids, delete_originals=True)
         self.assertEqual(result, "OK")
 
-        expected_filename = (
-            f"{'_'.join([str(doc_id) for doc_id in doc_ids])[:100]}_merged.pdf"
-        )
+        expected_filename = f"{'_'.join([str(doc_id) for doc_id in doc_ids])[:100]}_merged.pdf"
 
         mock_consume_file.assert_called()
         mock_delete_documents.assert_called()
@@ -669,9 +641,7 @@ class TestPDFActions(DirectoriesMixin, TestCase):
         result = bulk_edit.merge(doc_ids, archive_fallback=True)
         self.assertEqual(result, "OK")
 
-        expected_filename = (
-            f"{'_'.join([str(doc_id) for doc_id in doc_ids])[:100]}_merged.pdf"
-        )
+        expected_filename = f"{'_'.join([str(doc_id) for doc_id in doc_ids])[:100]}_merged.pdf"
 
         mock_consume_file.assert_called()
         consume_file_args, _ = mock_consume_file.call_args
@@ -698,9 +668,7 @@ class TestPDFActions(DirectoriesMixin, TestCase):
         with self.assertLogs("paperless.bulk_edit", level="ERROR") as cm:
             bulk_edit.merge(doc_ids)
             error_str = cm.output[0]
-            expected_str = (
-                "Error merging document 2, it will not be included in the merge"
-            )
+            expected_str = "Error merging document 2, it will not be included in the merge"
             self.assertIn(expected_str, error_str)
 
         mock_consume_file.assert_not_called()

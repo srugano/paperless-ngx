@@ -1588,13 +1588,7 @@ class TestDocumentApi(DirectoriesMixin, DocumentConsumeDelayMixin, APITestCase):
             archive_filename="archive.pdf",
         )
 
-        source_file: Path = (
-            Path(__file__).parent
-            / "samples"
-            / "documents"
-            / "thumbnails"
-            / "0000001.webp"
-        )
+        source_file: Path = Path(__file__).parent / "samples" / "documents" / "thumbnails" / "0000001.webp"
         archive_file: Path = Path(__file__).parent / "samples" / "simple.pdf"
 
         shutil.copy(source_file, doc.source_path)
@@ -3190,33 +3184,23 @@ class TestDocumentApiCustomFieldsSorting(DirectoriesMixin, APITestCase):
         values = {
             CustomField.FieldDataType.STRING: {
                 "values": ["foo", "bar", "baz"],
-                "field_name": CustomFieldInstance.TYPE_TO_DATA_STORE_NAME_MAP[
-                    CustomField.FieldDataType.STRING
-                ],
+                "field_name": CustomFieldInstance.TYPE_TO_DATA_STORE_NAME_MAP[CustomField.FieldDataType.STRING],
             },
             CustomField.FieldDataType.INT: {
                 "values": [3, 1, 2],
-                "field_name": CustomFieldInstance.TYPE_TO_DATA_STORE_NAME_MAP[
-                    CustomField.FieldDataType.INT
-                ],
+                "field_name": CustomFieldInstance.TYPE_TO_DATA_STORE_NAME_MAP[CustomField.FieldDataType.INT],
             },
             CustomField.FieldDataType.FLOAT: {
                 "values": [3.3, 1.1, 2.2],
-                "field_name": CustomFieldInstance.TYPE_TO_DATA_STORE_NAME_MAP[
-                    CustomField.FieldDataType.FLOAT
-                ],
+                "field_name": CustomFieldInstance.TYPE_TO_DATA_STORE_NAME_MAP[CustomField.FieldDataType.FLOAT],
             },
             CustomField.FieldDataType.BOOL: {
                 "values": [True, False, False],
-                "field_name": CustomFieldInstance.TYPE_TO_DATA_STORE_NAME_MAP[
-                    CustomField.FieldDataType.BOOL
-                ],
+                "field_name": CustomFieldInstance.TYPE_TO_DATA_STORE_NAME_MAP[CustomField.FieldDataType.BOOL],
             },
             CustomField.FieldDataType.DATE: {
                 "values": [date(2021, 1, 3), date(2021, 1, 1), date(2021, 1, 2)],
-                "field_name": CustomFieldInstance.TYPE_TO_DATA_STORE_NAME_MAP[
-                    CustomField.FieldDataType.DATE
-                ],
+                "field_name": CustomFieldInstance.TYPE_TO_DATA_STORE_NAME_MAP[CustomField.FieldDataType.DATE],
             },
             CustomField.FieldDataType.URL: {
                 "values": [
@@ -3224,27 +3208,19 @@ class TestDocumentApiCustomFieldsSorting(DirectoriesMixin, APITestCase):
                     "http://example.com",
                     "http://example.net",
                 ],
-                "field_name": CustomFieldInstance.TYPE_TO_DATA_STORE_NAME_MAP[
-                    CustomField.FieldDataType.URL
-                ],
+                "field_name": CustomFieldInstance.TYPE_TO_DATA_STORE_NAME_MAP[CustomField.FieldDataType.URL],
             },
             CustomField.FieldDataType.MONETARY: {
                 "values": ["USD789.00", "USD123.00", "USD456.00"],
-                "field_name": CustomFieldInstance.TYPE_TO_DATA_STORE_NAME_MAP[
-                    CustomField.FieldDataType.MONETARY
-                ],
+                "field_name": CustomFieldInstance.TYPE_TO_DATA_STORE_NAME_MAP[CustomField.FieldDataType.MONETARY],
             },
             CustomField.FieldDataType.DOCUMENTLINK: {
                 "values": [self.doc3.pk, self.doc1.pk, self.doc2.pk],
-                "field_name": CustomFieldInstance.TYPE_TO_DATA_STORE_NAME_MAP[
-                    CustomField.FieldDataType.DOCUMENTLINK
-                ],
+                "field_name": CustomFieldInstance.TYPE_TO_DATA_STORE_NAME_MAP[CustomField.FieldDataType.DOCUMENTLINK],
             },
             CustomField.FieldDataType.SELECT: {
                 "values": ["ghi-789", "abc-123", "def-456"],
-                "field_name": CustomFieldInstance.TYPE_TO_DATA_STORE_NAME_MAP[
-                    CustomField.FieldDataType.SELECT
-                ],
+                "field_name": CustomFieldInstance.TYPE_TO_DATA_STORE_NAME_MAP[CustomField.FieldDataType.SELECT],
                 "extra_data": {
                     "select_options": [
                         {"label": "Option 1", "id": "abc-123"},

@@ -129,10 +129,8 @@ class ConsumerPluginMixin:
             extra_args={
                 "document_id": document_id,
                 "owner_id": self.metadata.owner_id if self.metadata.owner_id else None,
-                "users_can_view": (self.metadata.view_users or [])
-                + (self.metadata.change_users or []),
-                "groups_can_view": (self.metadata.view_groups or [])
-                + (self.metadata.change_groups or []),
+                "users_can_view": (self.metadata.view_users or []) + (self.metadata.change_users or []),
+                "groups_can_view": (self.metadata.view_groups or []) + (self.metadata.change_groups or []),
             },
         )
 
@@ -169,8 +167,7 @@ class ConsumerPlugin(
         if not Path(settings.PRE_CONSUME_SCRIPT).is_file():
             self._fail(
                 ConsumerStatusShortMessage.PRE_CONSUME_SCRIPT_NOT_FOUND,
-                f"Configured pre-consume script "
-                f"{settings.PRE_CONSUME_SCRIPT} does not exist.",
+                f"Configured pre-consume script {settings.PRE_CONSUME_SCRIPT} does not exist.",
             )
 
         self.log.info(f"Executing pre-consume script {settings.PRE_CONSUME_SCRIPT}")
@@ -212,8 +209,7 @@ class ConsumerPlugin(
         if not Path(settings.POST_CONSUME_SCRIPT).is_file():
             self._fail(
                 ConsumerStatusShortMessage.POST_CONSUME_SCRIPT_NOT_FOUND,
-                f"Configured post-consume script "
-                f"{settings.POST_CONSUME_SCRIPT} does not exist.",
+                f"Configured post-consume script {settings.POST_CONSUME_SCRIPT} does not exist.",
             )
 
         self.log.info(
@@ -243,9 +239,7 @@ class ConsumerPlugin(
             "document-thumb",
             kwargs={"pk": document.pk},
         )
-        script_env["DOCUMENT_OWNER"] = (
-            document.owner.get_username() if document.owner else ""
-        )
+        script_env["DOCUMENT_OWNER"] = document.owner.get_username() if document.owner else ""
         script_env["DOCUMENT_CORRESPONDENT"] = str(document.correspondent)
         script_env["DOCUMENT_TAGS"] = str(
             ",".join(document.tags.all().values_list("name", flat=True)),
@@ -325,9 +319,7 @@ class ConsumerPlugin(
                     mime_type = magic.from_file(self.working_copy, mime=True)
                     self.log.debug(f"Detected mime type after qpdf: {mime_type}")
                     # Save the original file for later
-                    self.unmodified_original = (
-                        Path(tempdir.name) / Path("uo") / Path(self.filename)
-                    )
+                    self.unmodified_original = Path(tempdir.name) / Path("uo") / Path(self.filename)
                     self.unmodified_original.parent.mkdir(exist_ok=True)
                     copy_file_with_basic_stats(
                         self.input_doc.original_file,
@@ -391,10 +383,7 @@ class ConsumerPlugin(
                 ConsumerStatusShortMessage.PARSING_DOCUMENT,
             )
             self.log.debug(f"Parsing {self.filename}...")
-            if (
-                isinstance(document_parser, MailDocumentParser)
-                and self.input_doc.mailrule_id
-            ):
+            if isinstance(document_parser, MailDocumentParser) and self.input_doc.mailrule_id:
                 document_parser.parse(
                     self.working_copy,
                     mime_type,
@@ -485,9 +474,7 @@ class ConsumerPlugin(
                     document=document,
                     logging_group=self.logging_group,
                     classifier=classifier,
-                    original_file=self.unmodified_original
-                    if self.unmodified_original
-                    else self.working_copy,
+                    original_file=self.unmodified_original if self.unmodified_original else self.working_copy,
                 )
 
                 # After everything is in the database, copy the files into
@@ -498,9 +485,7 @@ class ConsumerPlugin(
 
                     self._write(
                         document.storage_type,
-                        self.unmodified_original
-                        if self.unmodified_original is not None
-                        else self.working_copy,
+                        self.unmodified_original if self.unmodified_original is not None else self.working_copy,
                         document.source_path,
                     )
 
@@ -544,10 +529,7 @@ class ConsumerPlugin(
                     self.unmodified_original.unlink()
 
                 # https://github.com/jonaswinkler/paperless-ng/discussions/1037
-                shadow_file = (
-                    Path(self.input_doc.original_file).parent
-                    / f"._{Path(self.input_doc.original_file).name}"
-                )
+                shadow_file = Path(self.input_doc.original_file).parent / f"._{Path(self.input_doc.original_file).name}"
 
                 if Path(shadow_file).is_file():
                     self.log.debug(f"Deleting shadow file {shadow_file}")
@@ -556,8 +538,7 @@ class ConsumerPlugin(
         except Exception as e:
             self._fail(
                 str(e),
-                f"The following error occurred while storing document "
-                f"{self.filename} after parsing: {e}",
+                f"The following error occurred while storing document {self.filename} after parsing: {e}",
                 exc_info=True,
                 exception=e,
             )
@@ -596,9 +577,7 @@ class ConsumerPlugin(
             else None
         )
         owner_username = (
-            User.objects.get(pk=self.metadata.owner_id).username
-            if self.metadata.owner_id is not None
-            else None
+            User.objects.get(pk=self.metadata.owner_id).username if self.metadata.owner_id is not None else None
         )
 
         return parse_w_workflow_placeholders(
@@ -652,11 +631,7 @@ class ConsumerPlugin(
                     f"Error occurred parsing title override '{self.metadata.title}', falling back to original. Exception: {e}",
                 )
 
-        file_for_checksum = (
-            self.unmodified_original
-            if self.unmodified_original is not None
-            else self.working_copy
-        )
+        file_for_checksum = self.unmodified_original if self.unmodified_original is not None else self.working_copy
 
         document = Document.objects.create(
             title=title[:127],
@@ -766,9 +741,7 @@ class ConsumerPreflightPlugin(
         Confirm the input file still exists where it should
         """
         if TYPE_CHECKING:
-            assert isinstance(self.input_doc.original_file, Path), (
-                self.input_doc.original_file
-            )
+            assert isinstance(self.input_doc.original_file, Path), self.input_doc.original_file
         if not self.input_doc.original_file.is_file():
             self._fail(
                 ConsumerStatusShortMessage.FILE_NOT_FOUND,

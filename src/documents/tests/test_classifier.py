@@ -26,8 +26,7 @@ def dummy_preprocess(content: str, **kwargs):
     Simpler, faster pre-processing for testing purposes
     """
     content = content.lower().strip()
-    content = re.sub(r"\s+", " ", content)
-    return content
+    return re.sub(r"\s+", " ", content)
 
 
 class TestClassifier(DirectoriesMixin, TestCase):

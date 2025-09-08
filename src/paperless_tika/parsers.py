@@ -75,8 +75,7 @@ class TikaDocumentParser(DocumentParser):
                         raise
         except Exception as err:
             raise ParseError(
-                f"Could not parse {document_path} with tika server at "
-                f"{settings.TIKA_ENDPOINT}: {err}",
+                f"Could not parse {document_path} with tika server at {settings.TIKA_ENDPOINT}: {err}",
             ) from err
 
         self.text = parsed.content

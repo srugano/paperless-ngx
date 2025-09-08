@@ -726,9 +726,8 @@ class TestFileHandlingWithArchive(DirectoriesMixin, FileSystemAssertsMixin, Test
         def fake_rename(src, dst):
             if "archive" in str(src):
                 raise OSError
-            else:
-                Path(src).unlink()
-                Path(dst).touch()
+            Path(src).unlink()
+            Path(dst).touch()
 
         m.side_effect = fake_rename
 
@@ -777,9 +776,8 @@ class TestFileHandlingWithArchive(DirectoriesMixin, FileSystemAssertsMixin, Test
         def fake_rename(src, dst):
             if "original" in str(src):
                 raise OSError
-            else:
-                Path(src).unlink()
-                Path(dst).touch()
+            Path(src).unlink()
+            Path(dst).touch()
 
         m.side_effect = fake_rename
 
@@ -992,9 +990,7 @@ class TestFilenameGeneration(DirectoriesMixin, TestCase):
         # Special case, undefined variable, then defined at the start of the template
         # This could lead to an absolute path after we remove the leading -none-, but leave the leading /
         # -none-/2020/ -> /2020/
-        sp.path = (
-            "{{ owner_username }}/{{ created_year }}/{{ correspondent }}/{{ title }}"
-        )
+        sp.path = "{{ owner_username }}/{{ created_year }}/{{ correspondent }}/{{ title }}"
         sp.save()
         self.assertEqual(generate_filename(doc), Path("2020/does not matter.pdf"))
 
@@ -1605,7 +1601,7 @@ class TestDateLocalization:
         14,
         30,
         5,
-        tzinfo=datetime.timezone.utc,
+        tzinfo=datetime.UTC,
     )
 
     @pytest.mark.parametrize(

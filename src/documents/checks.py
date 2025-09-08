@@ -64,12 +64,10 @@ def parser_check(app_configs, **kwargs):
     if len(parsers) == 0:
         return [
             Error(
-                "No parsers found. This is a bug. The consumer won't be "
-                "able to consume any documents without parsers.",
+                "No parsers found. This is a bug. The consumer won't be able to consume any documents without parsers.",
             ),
         ]
-    else:
-        return []
+    return []
 
 
 @register()

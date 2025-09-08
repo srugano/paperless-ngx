@@ -64,29 +64,14 @@ class OcrConfig(OutputTypeConfig):
         self.pages = app_config.pages or settings.OCR_PAGES
         self.language = app_config.language or settings.OCR_LANGUAGE
         self.mode = app_config.mode or settings.OCR_MODE
-        self.skip_archive_file = (
-            app_config.skip_archive_file or settings.OCR_SKIP_ARCHIVE_FILE
-        )
+        self.skip_archive_file = app_config.skip_archive_file or settings.OCR_SKIP_ARCHIVE_FILE
         self.image_dpi = app_config.image_dpi or settings.OCR_IMAGE_DPI
         self.clean = app_config.unpaper_clean or settings.OCR_CLEAN
-        self.deskew = (
-            app_config.deskew if app_config.deskew is not None else settings.OCR_DESKEW
-        )
-        self.rotate = (
-            app_config.rotate_pages
-            if app_config.rotate_pages is not None
-            else settings.OCR_ROTATE_PAGES
-        )
-        self.rotate_threshold = (
-            app_config.rotate_pages_threshold or settings.OCR_ROTATE_PAGES_THRESHOLD
-        )
-        self.max_image_pixel = (
-            app_config.max_image_pixels or settings.OCR_MAX_IMAGE_PIXELS
-        )
-        self.color_conversion_strategy = (
-            app_config.color_conversion_strategy
-            or settings.OCR_COLOR_CONVERSION_STRATEGY
-        )
+        self.deskew = app_config.deskew if app_config.deskew is not None else settings.OCR_DESKEW
+        self.rotate = app_config.rotate_pages if app_config.rotate_pages is not None else settings.OCR_ROTATE_PAGES
+        self.rotate_threshold = app_config.rotate_pages_threshold or settings.OCR_ROTATE_PAGES_THRESHOLD
+        self.max_image_pixel = app_config.max_image_pixels or settings.OCR_MAX_IMAGE_PIXELS
+        self.color_conversion_strategy = app_config.color_conversion_strategy or settings.OCR_COLOR_CONVERSION_STRATEGY
 
         user_args = None
         if app_config.user_args:
@@ -120,39 +105,21 @@ class BarcodeConfig(BaseConfig):
     def __post_init__(self) -> None:
         app_config = self._get_config_instance()
 
-        self.barcodes_enabled = (
-            app_config.barcodes_enabled or settings.CONSUMER_ENABLE_BARCODES
-        )
+        self.barcodes_enabled = app_config.barcodes_enabled or settings.CONSUMER_ENABLE_BARCODES
         self.barcode_enable_tiff_support = (
-            app_config.barcode_enable_tiff_support
-            or settings.CONSUMER_BARCODE_TIFF_SUPPORT
+            app_config.barcode_enable_tiff_support or settings.CONSUMER_BARCODE_TIFF_SUPPORT
         )
-        self.barcode_string = (
-            app_config.barcode_string or settings.CONSUMER_BARCODE_STRING
-        )
+        self.barcode_string = app_config.barcode_string or settings.CONSUMER_BARCODE_STRING
         self.barcode_retain_split_pages = (
-            app_config.barcode_retain_split_pages
-            or settings.CONSUMER_BARCODE_RETAIN_SPLIT_PAGES
+            app_config.barcode_retain_split_pages or settings.CONSUMER_BARCODE_RETAIN_SPLIT_PAGES
         )
-        self.barcode_enable_asn = (
-            app_config.barcode_enable_asn or settings.CONSUMER_ENABLE_ASN_BARCODE
-        )
-        self.barcode_asn_prefix = (
-            app_config.barcode_asn_prefix or settings.CONSUMER_ASN_BARCODE_PREFIX
-        )
-        self.barcode_upscale = (
-            app_config.barcode_upscale or settings.CONSUMER_BARCODE_UPSCALE
-        )
+        self.barcode_enable_asn = app_config.barcode_enable_asn or settings.CONSUMER_ENABLE_ASN_BARCODE
+        self.barcode_asn_prefix = app_config.barcode_asn_prefix or settings.CONSUMER_ASN_BARCODE_PREFIX
+        self.barcode_upscale = app_config.barcode_upscale or settings.CONSUMER_BARCODE_UPSCALE
         self.barcode_dpi = app_config.barcode_dpi or settings.CONSUMER_BARCODE_DPI
-        self.barcode_max_pages = (
-            app_config.barcode_max_pages or settings.CONSUMER_BARCODE_MAX_PAGES
-        )
-        self.barcode_enable_tag = (
-            app_config.barcode_enable_tag or settings.CONSUMER_ENABLE_TAG_BARCODE
-        )
-        self.barcode_tag_mapping = (
-            app_config.barcode_tag_mapping or settings.CONSUMER_TAG_BARCODE_MAPPING
-        )
+        self.barcode_max_pages = app_config.barcode_max_pages or settings.CONSUMER_BARCODE_MAX_PAGES
+        self.barcode_enable_tag = app_config.barcode_enable_tag or settings.CONSUMER_ENABLE_TAG_BARCODE
+        self.barcode_tag_mapping = app_config.barcode_tag_mapping or settings.CONSUMER_TAG_BARCODE_MAPPING
 
 
 @dataclasses.dataclass

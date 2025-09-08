@@ -855,61 +855,53 @@ class TestDocumentSearchApi(DirectoriesMixin, APITestCase):
         self.assertIn(
             d4.id,
             search_query(
-                "&created__date__lt="
-                + datetime.datetime(2020, 9, 2).strftime("%Y-%m-%d"),
+                "&created__date__lt=" + datetime.datetime(2020, 9, 2).strftime("%Y-%m-%d"),
             ),
         )
         self.assertNotIn(
             d4.id,
             search_query(
-                "&created__date__gt="
-                + datetime.datetime(2020, 9, 2).strftime("%Y-%m-%d"),
+                "&created__date__gt=" + datetime.datetime(2020, 9, 2).strftime("%Y-%m-%d"),
             ),
         )
 
         self.assertNotIn(
             d4.id,
             search_query(
-                "&created__date__lt="
-                + datetime.datetime(2020, 1, 2).strftime("%Y-%m-%d"),
+                "&created__date__lt=" + datetime.datetime(2020, 1, 2).strftime("%Y-%m-%d"),
             ),
         )
         self.assertIn(
             d4.id,
             search_query(
-                "&created__date__gt="
-                + datetime.datetime(2020, 1, 2).strftime("%Y-%m-%d"),
+                "&created__date__gt=" + datetime.datetime(2020, 1, 2).strftime("%Y-%m-%d"),
             ),
         )
 
         self.assertIn(
             d5.id,
             search_query(
-                "&added__date__lt="
-                + datetime.datetime(2020, 9, 2).strftime("%Y-%m-%d"),
+                "&added__date__lt=" + datetime.datetime(2020, 9, 2).strftime("%Y-%m-%d"),
             ),
         )
         self.assertNotIn(
             d5.id,
             search_query(
-                "&added__date__gt="
-                + datetime.datetime(2020, 9, 2).strftime("%Y-%m-%d"),
+                "&added__date__gt=" + datetime.datetime(2020, 9, 2).strftime("%Y-%m-%d"),
             ),
         )
 
         self.assertNotIn(
             d5.id,
             search_query(
-                "&added__date__lt="
-                + datetime.datetime(2020, 1, 2).strftime("%Y-%m-%d"),
+                "&added__date__lt=" + datetime.datetime(2020, 1, 2).strftime("%Y-%m-%d"),
             ),
         )
 
         self.assertIn(
             d5.id,
             search_query(
-                "&added__date__gt="
-                + datetime.datetime(2020, 1, 2).strftime("%Y-%m-%d"),
+                "&added__date__gt=" + datetime.datetime(2020, 1, 2).strftime("%Y-%m-%d"),
             ),
         )
 

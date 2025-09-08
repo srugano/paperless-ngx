@@ -153,11 +153,7 @@ class NotesAdmin(GuardedModelAdmin):
     search_fields = ("document__title",)
 
     def get_queryset(self, request):  # pragma: no cover
-        return (
-            super()
-            .get_queryset(request)
-            .select_related("user", "document__correspondent")
-        )
+        return super().get_queryset(request).select_related("user", "document__correspondent")
 
 
 class ShareLinksAdmin(GuardedModelAdmin):
@@ -185,11 +181,7 @@ class CustomFieldInstancesAdmin(GuardedModelAdmin):
     list_filter = ("created", "field")
 
     def get_queryset(self, request):  # pragma: no cover
-        return (
-            super()
-            .get_queryset(request)
-            .select_related("field", "document__correspondent")
-        )
+        return super().get_queryset(request).select_related("field", "document__correspondent")
 
 
 admin.site.register(Correspondent, CorrespondentAdmin)

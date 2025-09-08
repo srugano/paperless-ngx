@@ -1,6 +1,6 @@
 <!doctype html>
 
-{% load static i18n %}
+{% load i18n static %}
 
 <html lang="en" data-bs-theme="auto">
 <head>
@@ -8,7 +8,7 @@
 	<title>Paperless-ngx</title>
 	<base href="{% url 'base' %}">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<meta name="cookie_prefix" content="{{cookie_prefix}}">
+	<meta name="cookie_prefix" content="{{ cookie_prefix }}">
 	<meta name="robots" content="noindex,nofollow">
 	<meta name="author" content="The Paperless-ngx Team">
 	<link rel="icon" type="image/x-icon" href="favicon.ico">
@@ -65,7 +65,7 @@
 		<script type="text/javascript">{# Pass Django messages to Angular frontend #}
 			window.DJANGO_MESSAGES = [
 				{% for message in messages %}
-					{ level: "{{ message.level_tag | escapejs }}", message: "{{ message | escapejs }}" },
+					{ level: "{{ message.level_tag|escapejs }}", message: "{{ message|escapejs }}" },
 				{% endfor %}
 			]
 		</script>

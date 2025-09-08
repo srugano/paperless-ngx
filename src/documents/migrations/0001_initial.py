@@ -28,9 +28,7 @@ class Migration(migrations.Migration):
                 (
                     "content",
                     models.TextField(
-                        db_index=(
-                            "mysql" not in settings.DATABASES["default"]["ENGINE"]
-                        ),
+                        db_index=("mysql" not in settings.DATABASES["default"]["ENGINE"]),
                     ),
                 ),
                 ("created", models.DateTimeField(auto_now_add=True)),

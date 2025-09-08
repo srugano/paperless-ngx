@@ -45,8 +45,7 @@ class SanityCheckMessages:
                 if doc_pk is not None:
                     doc = all_docs.get(pk=doc_pk)
                     logger.info(
-                        f"Detected following issue(s) with document #{doc.pk},"
-                        f" titled {doc.title}",
+                        f"Detected following issue(s) with document #{doc.pk}, titled {doc.title}",
                     )
                 for msg in self._messages[doc_pk]:
                     logger.log(msg["level"], msg["message"])
@@ -65,9 +64,7 @@ class SanityCheckFailedException(Exception):
 def check_sanity(*, progress=False, scheduled=True) -> SanityCheckMessages:
     paperless_task = PaperlessTask.objects.create(
         task_id=uuid.uuid4(),
-        type=PaperlessTask.TaskType.SCHEDULED_TASK
-        if scheduled
-        else PaperlessTask.TaskType.MANUAL_TASK,
+        type=PaperlessTask.TaskType.SCHEDULED_TASK if scheduled else PaperlessTask.TaskType.MANUAL_TASK,
         task_name=PaperlessTask.TaskName.CHECK_SANITY,
         status=states.STARTED,
         date_created=timezone.now(),
@@ -75,20 +72,16 @@ def check_sanity(*, progress=False, scheduled=True) -> SanityCheckMessages:
     )
     messages = SanityCheckMessages()
 
-    present_files = {
-        x.resolve() for x in Path(settings.MEDIA_ROOT).glob("**/*") if not x.is_dir()
-    }
+    present_files = {x.resolve() for x in Path(settings.MEDIA_ROOT).glob("**/*") if not x.is_dir()}
 
     lockfile = Path(settings.MEDIA_LOCK).resolve()
-    if lockfile in present_files:
-        present_files.remove(lockfile)
+    present_files.discard(lockfile)
 
     general_config = GeneralConfig()
     app_logo = general_config.app_logo or settings.APP_LOGO
     if app_logo:
         logo_file = Path(settings.MEDIA_ROOT / Path(app_logo.lstrip("/"))).resolve()
-        if logo_file in present_files:
-            present_files.remove(logo_file)
+        present_files.discard(logo_file)
 
     for doc in tqdm(Document.global_objects.all(), disable=not progress):
         # Check sanity of the thumbnail
@@ -96,8 +89,7 @@ def check_sanity(*, progress=False, scheduled=True) -> SanityCheckMessages:
         if not thumbnail_path.exists() or not thumbnail_path.is_file():
             messages.error(doc.pk, "Thumbnail of document does not exist.")
         else:
-            if thumbnail_path in present_files:
-                present_files.remove(thumbnail_path)
+            present_files.discard(thumbnail_path)
             try:
                 _ = thumbnail_path.read_bytes()
             except OSError as e:
@@ -109,8 +101,7 @@ def check_sanity(*, progress=False, scheduled=True) -> SanityCheckMessages:
         if not source_path.exists() or not source_path.is_file():
             messages.error(doc.pk, "Original of document does not exist.")
         else:
-            if source_path in present_files:
-                present_files.remove(source_path)
+            present_files.discard(source_path)
             try:
                 checksum = hashlib.md5(source_path.read_bytes()).hexdigest()
             except OSError as e:
@@ -119,8 +110,7 @@ def check_sanity(*, progress=False, scheduled=True) -> SanityCheckMessages:
                 if checksum != doc.checksum:
                     messages.error(
                         doc.pk,
-                        "Checksum mismatch. "
-                        f"Stored: {doc.checksum}, actual: {checksum}.",
+                        f"Checksum mismatch. Stored: {doc.checksum}, actual: {checksum}.",
                     )
 
         # Check sanity of the archive file.
@@ -139,8 +129,7 @@ def check_sanity(*, progress=False, scheduled=True) -> SanityCheckMessages:
             if not archive_path.exists() or not archive_path.is_file():
                 messages.error(doc.pk, "Archived version of document does not exist.")
             else:
-                if archive_path in present_files:
-                    present_files.remove(archive_path)
+                present_files.discard(archive_path)
                 try:
                     checksum = hashlib.md5(archive_path.read_bytes()).hexdigest()
                 except OSError as e:

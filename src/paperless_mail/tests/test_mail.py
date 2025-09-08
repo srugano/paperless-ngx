@@ -195,10 +195,8 @@ def fake_magic_from_buffer(buffer, *, mime=False):
     if mime:
         if "PDF" in str(buffer):
             return "application/pdf"
-        else:
-            return "unknown/type"
-    else:
-        return "Some verbose file description"
+        return "unknown/type"
+    return "Some verbose file description"
 
 
 class MessageBuilder:
@@ -1207,8 +1205,7 @@ class TestMail(
         def get_correspondent_fake(message, rule):
             if message.from_ == "amazon@amazon.de":
                 raise ValueError("Does not compute.")
-            else:
-                return None
+            return
 
         m.side_effect = get_correspondent_fake
 

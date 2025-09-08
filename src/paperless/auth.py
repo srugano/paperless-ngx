@@ -17,7 +17,7 @@ class AutoLoginMiddleware(MiddlewareMixin):
     def process_request(self, request: HttpRequest):
         # Dont use auto-login with token request
         if request.path.startswith("/api/token/") and request.method == "POST":
-            return None
+            return
         try:
             request.user = User.objects.get(username=settings.AUTO_LOGIN_USERNAME)
             auth.login(
@@ -43,8 +43,7 @@ class AngularApiAuthenticationOverride(authentication.BaseAuthentication):
             user = User.objects.filter(is_staff=True).first()
             logger.debug(f"Auto-Login with user {user}")
             return (user, None)
-        else:
-            return None
+        return None
 
 
 class HttpRemoteUserMiddleware(PersistentRemoteUserMiddleware):

@@ -28,10 +28,7 @@ class Command(MultiProcessMixin, ProgressBarMixin, BaseCommand):
             "--overwrite",
             default=False,
             action="store_true",
-            help=(
-                "Recreates the archived document for documents that already "
-                "have an archived version."
-            ),
+            help=("Recreates the archived document for documents that already have an archived version."),
         )
         parser.add_argument(
             "-d",
@@ -39,10 +36,7 @@ class Command(MultiProcessMixin, ProgressBarMixin, BaseCommand):
             default=None,
             type=int,
             required=False,
-            help=(
-                "Specify the ID of a document, and this command will only "
-                "run on this specific document."
-            ),
+            help=("Specify the ID of a document, and this command will only run on this specific document."),
         )
         self.add_argument_progress_bar_mixin(parser)
         self.add_argument_processes_mixin(parser)
@@ -60,12 +54,7 @@ class Command(MultiProcessMixin, ProgressBarMixin, BaseCommand):
         else:
             documents = Document.objects.all()
 
-        document_ids = list(
-            map(
-                lambda doc: doc.id,
-                filter(lambda d: overwrite or not d.has_archive_version, documents),
-            ),
-        )
+        document_ids = [doc.id for doc in filter(lambda d: overwrite or not d.has_archive_version, documents)]
 
         # Note to future self: this prevents django from reusing database
         # connections between processes, which is bad and does not work

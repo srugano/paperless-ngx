@@ -124,8 +124,7 @@ class TestDoubleSided(DirectoriesMixin, FileSystemAssertsMixin, TestCase):
         """
 
         self.create_staging_file(
-            datetime=dt.datetime.now()
-            - dt.timedelta(minutes=TIMEOUT_MINUTES, seconds=1),
+            datetime=dt.datetime.now() - dt.timedelta(minutes=TIMEOUT_MINUTES, seconds=1),
         )
         msg = self.consume_file("double-sided-odd.pdf")
         self.assertIsFile(self.staging_file)

@@ -29,10 +29,7 @@ class PaperlessUserForm(forms.ModelForm):
         user_being_edited = self.instance
         is_superuser = cleaned_data.get("is_superuser")
 
-        if (
-            not self.request.user.is_superuser
-            and is_superuser != user_being_edited.is_superuser
-        ):
+        if not self.request.user.is_superuser and is_superuser != user_being_edited.is_superuser:
             raise forms.ValidationError(
                 "Superuser status can only be changed by a superuser",
             )

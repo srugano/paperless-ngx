@@ -43,12 +43,12 @@ class MailDocumentParser(DocumentParser):
             OutputTypeChoices.PDF_A2,
         }:
             return PdfAFormat.A2b
-        elif settings.OCR_OUTPUT_TYPE == OutputTypeChoices.PDF_A1:  # pragma: no cover
+        if settings.OCR_OUTPUT_TYPE == OutputTypeChoices.PDF_A1:  # pragma: no cover
             self.log.warning(
                 "Gotenberg does not support PDF/A-1a, choosing PDF/A-2b instead",
             )
             return PdfAFormat.A2b
-        elif settings.OCR_OUTPUT_TYPE == OutputTypeChoices.PDF_A3:  # pragma: no cover
+        if settings.OCR_OUTPUT_TYPE == OutputTypeChoices.PDF_A3:  # pragma: no cover
             return PdfAFormat.A3b
         return None
 
@@ -103,8 +103,7 @@ class MailDocumentParser(DocumentParser):
                 "prefix": "",
                 "key": "attachments",
                 "value": ", ".join(
-                    f"{attachment.filename}"
-                    f"({naturalsize(attachment.size, binary=True, format='%.2f')})"
+                    f"{attachment.filename}({naturalsize(attachment.size, binary=True, format='%.2f')})"
                     for attachment in mail.attachments
                 ),
             },
@@ -152,13 +151,9 @@ class MailDocumentParser(DocumentParser):
             to_list = [address.full for address in mail_message.to_values]
             fmt_text += f"To: {', '.join(to_list)}\n\n"
             if mail_message.cc_values:
-                fmt_text += (
-                    f"CC: {', '.join(address.full for address in mail.cc_values)}\n\n"
-                )
+                fmt_text += f"CC: {', '.join(address.full for address in mail.cc_values)}\n\n"
             if mail_message.bcc_values:
-                fmt_text += (
-                    f"BCC: {', '.join(address.full for address in mail.bcc_values)}\n\n"
-                )
+                fmt_text += f"BCC: {', '.join(address.full for address in mail.bcc_values)}\n\n"
             if mail_message.attachments:
                 att = []
                 for a in mail.attachments:
@@ -224,8 +219,7 @@ class MailDocumentParser(DocumentParser):
                 return ""
         except Exception as err:
             raise ParseError(
-                f"Could not parse content with tika server at "
-                f"{settings.TIKA_ENDPOINT}: {err}",
+                f"Could not parse content with tika server at {settings.TIKA_ENDPOINT}: {err}",
             ) from err
 
     def generate_pdf(
@@ -302,8 +296,7 @@ class MailDocumentParser(DocumentParser):
             text = escape(text)
             text = clean(text)
             text = linkify(text, parse_email=True)
-            text = text.replace("\n", "<br>")
-            return text
+            return text.replace("\n", "<br>")
 
         data = {}
 
@@ -404,8 +397,7 @@ class MailDocumentParser(DocumentParser):
             text = compiled_open.sub("<div hidden ", text)
 
             compiled_close = re.compile(re.escape("</script"), re.IGNORECASE)
-            text = compiled_close.sub("</div", text)
-            return text
+            return compiled_close.sub("</div", text)
 
         self.log.info("Converting message html to PDF")
 
@@ -475,4 +467,4 @@ class MailDocumentParser(DocumentParser):
         """
         This parser does not implement additional settings yet
         """
-        return None
+        return

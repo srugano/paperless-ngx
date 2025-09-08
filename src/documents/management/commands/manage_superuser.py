@@ -52,8 +52,7 @@ class Command(BaseCommand):
         if password is None:
             self.stdout.write(
                 self.style.ERROR(
-                    "Please check if PAPERLESS_ADMIN_PASSWORD has been"
-                    " set in the environment",
+                    "Please check if PAPERLESS_ADMIN_PASSWORD has been set in the environment",
                 ),
             )
         else:

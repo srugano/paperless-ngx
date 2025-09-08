@@ -111,8 +111,7 @@ class TestParser(DirectoriesMixin, FileSystemAssertsMixin, TestCase):
         def call_convert(input_file, output_file, **kwargs):
             if ".pdf" in str(input_file):
                 raise ParseError("Does not compute.")
-            else:
-                run_convert(input_file=input_file, output_file=output_file, **kwargs)
+            run_convert(input_file=input_file, output_file=output_file, **kwargs)
 
         m.side_effect = call_convert
 

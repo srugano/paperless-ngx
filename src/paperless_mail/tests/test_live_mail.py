@@ -12,8 +12,7 @@ from paperless_mail.models import MailRule
 # Only run if the environment is setup
 # And the environment is not empty (forks, I think)
 @pytest.mark.skipif(
-    "PAPERLESS_MAIL_TEST_HOST" not in os.environ
-    or not len(os.environ["PAPERLESS_MAIL_TEST_HOST"]),
+    "PAPERLESS_MAIL_TEST_HOST" not in os.environ or not len(os.environ["PAPERLESS_MAIL_TEST_HOST"]),
     reason="Live server testing not enabled",
 )
 @pytest.mark.django_db()

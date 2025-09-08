@@ -74,7 +74,9 @@ class TestCustomAccountAdapter(TestCase):
             adapter = get_adapter()
 
             # Test when PAPERLESS_URL is None
-            expected_url = f"https://foo.org{reverse('account_reset_password_from_key', kwargs={'uidb36': 'UID', 'key': 'KEY'})}"
+            expected_url = (
+                f"https://foo.org{reverse('account_reset_password_from_key', kwargs={'uidb36': 'UID', 'key': 'KEY'})}"
+            )
             self.assertEqual(
                 adapter.get_reset_password_from_key_url("UID-KEY"),
                 expected_url,

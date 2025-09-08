@@ -14,10 +14,7 @@ from django.db import connections
 exists_message = "{} is set but doesn't exist."
 exists_hint = "Create a directory at {}"
 writeable_message = "{} is not writeable"
-writeable_hint = (
-    "Set the permissions of {} to be writeable by the user running the "
-    "Paperless services"
-)
+writeable_hint = "Set the permissions of {} to be writeable by the user running the Paperless services"
 
 
 def path_check(var, directory: Path) -> list[Error]:
@@ -102,8 +99,7 @@ def debug_mode_check(app_configs, **kwargs):
                 "debugging information when something goes wrong.",
             ),
         ]
-    else:
-        return []
+    return []
 
 
 @register()
@@ -145,8 +141,7 @@ def settings_values_check(app_configs, **kwargs):
         if settings.OCR_SKIP_ARCHIVE_FILE not in {"never", "with_text", "always"}:
             msgs.append(
                 Error(
-                    "OCR_SKIP_ARCHIVE_FILE setting "
-                    f'"{settings.OCR_SKIP_ARCHIVE_FILE}" is not valid',
+                    f'OCR_SKIP_ARCHIVE_FILE setting "{settings.OCR_SKIP_ARCHIVE_FILE}" is not valid',
                 ),
             )
 
@@ -181,10 +176,7 @@ def settings_values_check(app_configs, **kwargs):
     def _email_certificate_validate():
         msgs = []
         # Existence checks
-        if (
-            settings.EMAIL_CERTIFICATE_FILE is not None
-            and not settings.EMAIL_CERTIFICATE_FILE.is_file()
-        ):
+        if settings.EMAIL_CERTIFICATE_FILE is not None and not settings.EMAIL_CERTIFICATE_FILE.is_file():
             msgs.append(
                 Error(
                     f"Email cert {settings.EMAIL_CERTIFICATE_FILE} is not a file",
@@ -193,10 +185,7 @@ def settings_values_check(app_configs, **kwargs):
         return msgs
 
     return (
-        _ocrmypdf_settings_check()
-        + _timezone_validate()
-        + _barcode_scanner_validate()
-        + _email_certificate_validate()
+        _ocrmypdf_settings_check() + _timezone_validate() + _barcode_scanner_validate() + _email_certificate_validate()
     )
 
 

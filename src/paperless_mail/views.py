@@ -80,10 +80,7 @@ class MailAccountViewSet(ModelViewSet, PassUserMixin):
         serializer.is_valid(raise_exception=True)
 
         # account exists, use the password from there instead of *** and refresh_token / expiration
-        if (
-            len(serializer.validated_data.get("password").replace("*", "")) == 0
-            and request.data["id"] is not None
-        ):
+        if len(serializer.validated_data.get("password").replace("*", "")) == 0 and request.data["id"] is not None:
             existing_account = MailAccount.objects.get(pk=request.data["id"])
             serializer.validated_data["password"] = existing_account.password
             serializer.validated_data["account_type"] = existing_account.account_type
@@ -97,11 +94,7 @@ class MailAccountViewSet(ModelViewSet, PassUserMixin):
             account.imap_security,
         ) as M:
             try:
-                if (
-                    account.is_token
-                    and account.expiration is not None
-                    and account.expiration < timezone.now()
-                ):
+                if account.is_token and account.expiration is not None and account.expiration < timezone.now():
                     oauth_manager = PaperlessMailOAuth2Manager()
                     if oauth_manager.refresh_account_oauth_token(existing_account):
                         # User is not changing password and token needs to be refreshed
@@ -146,9 +139,7 @@ class OauthCallbackView(GenericAPIView):
     permission_classes = (IsAuthenticated,)
 
     def get(self, request, format=None):
-        if not (
-            request.user and request.user.has_perms(["paperless_mail.add_mailaccount"])
-        ):
+        if not (request.user and request.user.has_perms(["paperless_mail.add_mailaccount"])):
             return HttpResponseBadRequest(
                 "You do not have permission to add mail accounts",
             )

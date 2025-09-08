@@ -77,9 +77,7 @@ class BarcodePlugin(ConsumeTaskPlugin):
             supported_mimes = {"application/pdf"}
 
         return (
-            self.settings.barcode_enable_asn
-            or self.settings.barcodes_enabled
-            or self.settings.barcode_enable_tag
+            self.settings.barcode_enable_asn or self.settings.barcodes_enabled or self.settings.barcode_enable_tag
         ) and self.input_doc.mime_type in supported_mimes
 
     def get_settings(self) -> BarcodeConfig:
@@ -126,11 +124,7 @@ class BarcodePlugin(ConsumeTaskPlugin):
         self.detect()
 
         # try reading tags from barcodes
-        if (
-            self.settings.barcode_enable_tag
-            and (tags := self.tags) is not None
-            and len(tags) > 0
-        ):
+        if self.settings.barcode_enable_tag and (tags := self.tags) is not None and len(tags) > 0:
             if self.metadata.tag_ids:
                 self.metadata.tag_ids += tags
             else:
@@ -138,9 +132,7 @@ class BarcodePlugin(ConsumeTaskPlugin):
             logger.info(f"Found tags in barcode: {tags}")
 
         # Lastly attempt to split documents
-        if self.settings.barcodes_enabled and (
-            separator_pages := self.get_separation_pages()
-        ):
+        if self.settings.barcodes_enabled and (separator_pages := self.get_separation_pages()):
             # We have pages to split against
 
             # Note this does NOT use the base_temp_dir, as that will be removed
@@ -269,9 +261,7 @@ class BarcodePlugin(ConsumeTaskPlugin):
 
             # Get limit from configuration
             barcode_max_pages: int = (
-                num_of_pages
-                if self.settings.barcode_max_pages == 0
-                else self.settings.barcode_max_pages
+                num_of_pages if self.settings.barcode_max_pages == 0 else self.settings.barcode_max_pages
             )
 
             if barcode_max_pages < num_of_pages:  # pragma: no cover
@@ -384,11 +374,7 @@ class BarcodePlugin(ConsumeTaskPlugin):
                     for regex in self.settings.barcode_tag_mapping:
                         if re.match(regex, raw, flags=re.IGNORECASE):
                             sub = self.settings.barcode_tag_mapping[regex]
-                            tag_str = (
-                                re.sub(regex, sub, raw, flags=re.IGNORECASE)
-                                if sub
-                                else raw
-                            )
+                            tag_str = re.sub(regex, sub, raw, flags=re.IGNORECASE) if sub else raw
                             break
 
                     if tag_str:
@@ -398,9 +384,7 @@ class BarcodePlugin(ConsumeTaskPlugin):
                         )
 
                         logger.debug(
-                            f"Found Tag Barcode '{raw}', substituted "
-                            f"to '{tag}' and mapped to "
-                            f"tag #{tag.pk}.",
+                            f"Found Tag Barcode '{raw}', substituted to '{tag}' and mapped to tag #{tag.pk}.",
                         )
                         tags.append(tag.pk)
 
@@ -421,9 +405,7 @@ class BarcodePlugin(ConsumeTaskPlugin):
         # get the page numbers of the separating barcodes
         retain = self.settings.barcode_retain_split_pages
         separator_pages = {
-            bc.page: retain
-            for bc in self.barcodes
-            if bc.is_separator and (not retain or (retain and bc.page > 0))
+            bc.page: retain for bc in self.barcodes if bc.is_separator and (not retain or (retain and bc.page > 0))
         }  # as below, dont include the first page if retain is enabled
         if not self.settings.barcode_enable_asn:
             return separator_pages

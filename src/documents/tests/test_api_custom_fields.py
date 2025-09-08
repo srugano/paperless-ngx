@@ -191,8 +191,7 @@ class TestCustomFieldsAPI(DirectoriesMixin, APITestCase):
             json.dumps(
                 {
                     "extra_data": {
-                        "select_options": data["extra_data"]["select_options"]
-                        + [{"label": "Option 3"}],
+                        "select_options": data["extra_data"]["select_options"] + [{"label": "Option 3"}],
                     },
                 },
             ),

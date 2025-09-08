@@ -58,12 +58,7 @@ class Document:
 
     @property
     def source_path(self):
-        return (
-            Path(settings.MEDIA_ROOT)
-            / "documents"
-            / "originals"
-            / f"{self.pk:07}.{self.file_type}.gpg"
-        )
+        return Path(settings.MEDIA_ROOT) / "documents" / "originals" / f"{self.pk:07}.{self.file_type}.gpg"
 
     @property
     def source_file(self):
@@ -80,29 +75,9 @@ def set_checksums(apps, schema_editor):
     if not document_model.objects.all().exists():
         return
 
-    print(
-        colourise(
-            "\n\n"
-            "  This is a one-time only migration to generate checksums for all\n"
-            "  of your existing documents.  If you have a lot of documents\n"
-            "  though, this may take a while, so a coffee break may be in\n"
-            "  order."
-            "\n",
-            opts=("bold",),
-        ),
-    )
-
     sums = {}
     for d in document_model.objects.all():
         document = Document(d)
-
-        print(
-            "    {} {} {}".format(
-                colourise("*", fg="green"),
-                colourise("Generating a checksum for", fg="white"),
-                colourise(document.file_name, fg="cyan"),
-            ),
-        )
 
         with document.source_file as encrypted:
             checksum = hashlib.md5(GnuPG.decrypted(encrypted)).hexdigest()

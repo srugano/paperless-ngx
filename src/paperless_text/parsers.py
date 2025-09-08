@@ -47,4 +47,4 @@ class TextDocumentParser(DocumentParser):
         """
         This parser does not implement additional settings yet
         """
-        return None
+        return

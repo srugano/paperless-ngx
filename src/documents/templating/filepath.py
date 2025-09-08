@@ -88,7 +88,7 @@ def get_cf_value(
 ) -> str | None:
     if name in custom_field_data and custom_field_data[name]["value"] is not None:
         return custom_field_data[name]["value"]
-    elif default is not None:
+    if default is not None:
         return default
     return None
 
@@ -124,10 +124,9 @@ def localize_date(value: date | datetime, format: str, locale: str) -> str:
 
     if isinstance(value, datetime):
         return dates.format_datetime(value, format=format, locale=locale)
-    elif isinstance(value, date):
+    if isinstance(value, date):
         return dates.format_date(value, format=format, locale=locale)
-    else:
-        raise TypeError(f"Unsupported type {type(value)} for localize_date")
+    raise TypeError(f"Unsupported type {type(value)} for localize_date")
 
 
 _template_environment.filters["get_cf_value"] = get_cf_value
@@ -144,7 +143,7 @@ def create_dummy_document():
     Create a dummy Document instance with all possible fields filled
     """
     # Populate the document with representative values for every field
-    dummy_doc = Document(
+    return Document(
         pk=1,
         title="Sample Title",
         correspondent=Correspondent(name="Sample Correspondent"),
@@ -164,7 +163,6 @@ def create_dummy_document():
         original_filename="original_file.pdf",
         archive_serial_number=12345,
     )
-    return dummy_doc
 
 
 def get_creation_date_context(document: Document) -> dict[str, str]:
@@ -229,12 +227,8 @@ def get_basic_metadata_context(
         )
         if document.document_type
         else no_value_default,
-        "asn": str(document.archive_serial_number)
-        if document.archive_serial_number
-        else no_value_default,
-        "owner_username": document.owner.username
-        if document.owner
-        else no_value_default,
+        "asn": str(document.archive_serial_number) if document.archive_serial_number else no_value_default,
+        "owner_username": document.owner.username if document.owner else no_value_default,
         "original_name": PurePath(document.original_filename).with_suffix("").name
         if document.original_filename
         else no_value_default,
@@ -289,11 +283,7 @@ def get_custom_fields_context(
         ):
             options = field_instance.field.extra_data["select_options"]
             value = pathvalidate.sanitize_filename(
-                next(
-                    option["label"]
-                    for option in options
-                    if option["id"] == field_instance.value
-                ),
+                next(option["label"] for option in options if option["id"] == field_instance.value),
                 replacement_text="-",
             )
         else:
@@ -355,10 +345,9 @@ def validate_filepath_template_and_render(
             template_string,
             template_class=FilePathTemplate,
         )
-        rendered_template = template.render(context)
+        return template.render(context)
 
         # We're good!
-        return rendered_template
     except UndefinedError:
         # The undefined class logs this already for us
         pass

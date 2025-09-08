@@ -103,8 +103,7 @@ class Tag(MatchingModel):
         _("is inbox tag"),
         default=False,
         help_text=_(
-            "Marks this tag as an inbox tag: All newly consumed "
-            "documents will be tagged with inbox tags.",
+            "Marks this tag as an inbox tag: All newly consumed documents will be tagged with inbox tags.",
         ),
     )
 
@@ -170,8 +169,7 @@ class Document(SoftDeleteModel, ModelWithOwner):
         _("content"),
         blank=True,
         help_text=_(
-            "The raw, text-only data of the document. This field is "
-            "primarily used for searching.",
+            "The raw, text-only data of the document. This field is primarily used for searching.",
         ),
     )
 
@@ -288,7 +286,14 @@ class Document(SoftDeleteModel, ModelWithOwner):
             "The position of this document in your physical document archive.",
         ),
     )
-    embedding = VectorField(dimensions=512, null=True, blank=True, help_text=_("The embedding vector for the document."))
+    embedding = VectorField(
+        dimensions=1024,
+        null=True,
+        blank=True,
+        help_text=_(
+            "The embedding vector for the document. Default is with https://huggingface.co/Qwen/Qwen3-Embedding-0.6B model"
+        ),
+    )
 
     class Meta:
         ordering = ("-created",)
@@ -329,8 +334,7 @@ class Document(SoftDeleteModel, ModelWithOwner):
     def archive_path(self) -> Path | None:
         if self.has_archive_version:
             return (settings.ARCHIVE_DIR / Path(str(self.archive_filename))).resolve()
-        else:
-            return None
+        return None
 
     @property
     def archive_file(self):
@@ -376,6 +380,18 @@ class Document(SoftDeleteModel, ModelWithOwner):
     @property
     def created_date(self):
         return self.created
+
+
+class DocumentChunk(models.Model):
+    document = models.ForeignKey("Document", on_delete=models.CASCADE, related_name="chunks")
+    chunk_index = models.PositiveIntegerField()
+    content = models.TextField()
+    embedding = VectorField(
+        dimensions=1024, null=True, blank=True, help_text=_("The embedding vector for the document chunk.")
+    )
+
+    class Meta:
+        unique_together = ("document", "chunk_index")
 
 
 class SavedView(ModelWithOwner):
@@ -880,10 +896,7 @@ class CustomFieldInstance(SoftDeleteModel):
                 for option in self.field.extra_data["select_options"]
                 if option.get("id") == self.value_select
             )
-            if (
-                self.field.data_type == CustomField.FieldDataType.SELECT
-                and self.value_select is not None
-            )
+            if (self.field.data_type == CustomField.FieldDataType.SELECT and self.value_select is not None)
             else self.value
         )
         return str(self.field.name) + f" : {value}"
@@ -1080,8 +1093,7 @@ class WorkflowActionEmail(models.Model):
         max_length=256,
         null=False,
         help_text=_(
-            "The subject of the email, can include some placeholders, "
-            "see documentation.",
+            "The subject of the email, can include some placeholders, see documentation.",
         ),
     )
 
@@ -1089,8 +1101,7 @@ class WorkflowActionEmail(models.Model):
         _("email body"),
         null=False,
         help_text=_(
-            "The body (message) of the email, can include some placeholders, "
-            "see documentation.",
+            "The body (message) of the email, can include some placeholders, see documentation.",
         ),
     )
 
@@ -1192,8 +1203,7 @@ class WorkflowAction(models.Model):
         null=True,
         blank=True,
         help_text=_(
-            "Assign a document title, can include some placeholders, "
-            "see documentation.",
+            "Assign a document title, can include some placeholders, see documentation.",
         ),
     )
 

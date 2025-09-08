@@ -695,4 +695,3 @@ msgstr "tilordne korrespondent fra"
 #: paperless_mail/models.py:216
 msgid "assign this correspondent"
 msgstr "tilordne denne korrespondenten"
-

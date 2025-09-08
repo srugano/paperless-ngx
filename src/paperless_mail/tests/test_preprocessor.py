@@ -42,9 +42,7 @@ class MessageEncryptor:
         message_copy = email.message_from_bytes(email_message.as_bytes())
 
         message_copy._headers = [
-            header
-            for header in message_copy._headers
-            if header[0].lower() not in ("from", "to", "subject")
+            header for header in message_copy._headers if header[0].lower() not in ("from", "to", "subject")
         ]
         return message_copy.as_bytes()
 

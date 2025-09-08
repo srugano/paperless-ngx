@@ -44,10 +44,7 @@ class Command(MultiProcessMixin, ProgressBarMixin, BaseCommand):
             default=None,
             type=int,
             required=False,
-            help=(
-                "Specify the ID of a document, and this command will only "
-                "run on this specific document."
-            ),
+            help=("Specify the ID of a document, and this command will only run on this specific document."),
         )
         self.add_argument_progress_bar_mixin(parser)
         self.add_argument_processes_mixin(parser)

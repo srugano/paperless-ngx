@@ -2089,4 +2089,3 @@ msgstr "statuss"
 #: paperless_mail/models.py:363
 msgid "error"
 msgstr "kļūda"
-

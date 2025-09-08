@@ -38,8 +38,7 @@ def _do_convert(work_package):
         existing_thumbnail.unlink()
 
         logger.info(
-            "Conversion to WebP completed, "
-            f"replaced {existing_thumbnail.name} with {converted_thumbnail.name}",
+            f"Conversion to WebP completed, replaced {existing_thumbnail.name} with {converted_thumbnail.name}",
         )
 
     except Exception as e:
@@ -61,9 +60,7 @@ def _convert_thumbnails_to_webp(apps, schema_editor):
             ).name
 
             # Create the expected output filename in the tempdir
-            converted_thumbnail = (
-                Path(tempdir) / Path(converted_thumbnail_name)
-            ).resolve()
+            converted_thumbnail = (Path(tempdir) / Path(converted_thumbnail_name)).resolve()
 
             # Package up the necessary info
             work_packages.append(

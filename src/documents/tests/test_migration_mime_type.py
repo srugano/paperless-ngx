@@ -63,13 +63,7 @@ class TestMigrateMimeType(DirectoriesMixin, TestMigrations):
         )
         self.doc2_id = doc2.id
         shutil.copy(
-            (
-                Path(__file__).parent
-                / "samples"
-                / "documents"
-                / "originals"
-                / "0000004.pdf.gpg"
-            ),
+            (Path(__file__).parent / "samples" / "documents" / "originals" / "0000004.pdf.gpg"),
             source_path_before(doc2),
         )
 

@@ -140,10 +140,7 @@ class TestCustomFieldsSearch(DirectoriesMixin, APITestCase):
             archive_serial_number=len(self.documents) + 1,
         )
         data = {
-            "custom_fields": [
-                {"field": self.custom_fields[name].id, "value": value}
-                for name, value in kwargs.items()
-            ],
+            "custom_fields": [{"field": self.custom_fields[name].id, "value": value} for name, value in kwargs.items()],
         }
         serializer = DocumentSerializer(
             document,
@@ -172,9 +169,7 @@ class TestCustomFieldsSearch(DirectoriesMixin, APITestCase):
         Checks the results of the query against a callable reference predicate.
         """
         reference_document_ids = [
-            document.id
-            for document in self.documents
-            if reference_predicate(DocumentWrapper(document))
+            document.id for document in self.documents if reference_predicate(DocumentWrapper(document))
         ]
         # First sanity check our test cases
         if not match_nothing_ok:
@@ -203,9 +198,7 @@ class TestCustomFieldsSearch(DirectoriesMixin, APITestCase):
             ),
         )
         self.assertEqual(response.status_code, 200, msg=str(response.json()))
-        response_document_ids = [
-            document["id"] for document in response.json()["results"]
-        ]
+        response_document_ids = [document["id"] for document in response.json()["results"]]
         self.assertEqual(reference_document_ids, response_document_ids)
 
     def _assert_validation_error(self, query: str, path: list, keyword: str):
@@ -252,8 +245,7 @@ class TestCustomFieldsSearch(DirectoriesMixin, APITestCase):
         """
         self._assert_query_match_predicate(
             ["url_field", "exact", "https://docs.paperless-ngx.com/"],
-            lambda document: "url_field" in document
-            and document["url_field"] == "https://docs.paperless-ngx.com/",
+            lambda document: "url_field" in document and document["url_field"] == "https://docs.paperless-ngx.com/",
         )
 
     def test_filter_by_multiple_fields(self):
@@ -277,22 +269,19 @@ class TestCustomFieldsSearch(DirectoriesMixin, APITestCase):
     def test_exact(self):
         self._assert_query_match_predicate(
             ["string_field", "exact", "paperless"],
-            lambda document: "string_field" in document
-            and document["string_field"] == "paperless",
+            lambda document: "string_field" in document and document["string_field"] == "paperless",
         )
 
     def test_in(self):
         self._assert_query_match_predicate(
             ["string_field", "in", ["paperless", "Paperless"]],
-            lambda document: "string_field" in document
-            and document["string_field"] in ("paperless", "Paperless"),
+            lambda document: "string_field" in document and document["string_field"] in ("paperless", "Paperless"),
         )
 
     def test_isnull(self):
         self._assert_query_match_predicate(
             ["string_field", "isnull", True],
-            lambda document: "string_field" in document
-            and document["string_field"] is None,
+            lambda document: "string_field" in document and document["string_field"] is None,
         )
 
     def test_exists(self):
@@ -312,14 +301,12 @@ class TestCustomFieldsSearch(DirectoriesMixin, APITestCase):
         # or the name of the option. They function exactly the same.
         self._assert_query_match_predicate(
             ["select_field", "exact", "def-456"],
-            lambda document: "select_field" in document
-            and document["select_field"] == "def-456",
+            lambda document: "select_field" in document and document["select_field"] == "def-456",
         )
         # This is the same as:
         self._assert_query_match_predicate(
             ["select_field", "exact", "B"],
-            lambda document: "select_field" in document
-            and document["select_field"] == "def-456",
+            lambda document: "select_field" in document and document["select_field"] == "def-456",
         )
 
     # ==========================================================#
@@ -446,8 +433,7 @@ class TestCustomFieldsSearch(DirectoriesMixin, APITestCase):
         # An empty set is a subset of any set.
         self._assert_query_match_predicate(
             ["documentlink_field", "contains", []],
-            lambda document: "documentlink_field" in document
-            and document["documentlink_field"] is not None,
+            lambda document: "documentlink_field" in document and document["documentlink_field"] is not None,
         )
 
     def test_document_link_contains_no_reverse_link(self):
@@ -483,8 +469,7 @@ class TestCustomFieldsSearch(DirectoriesMixin, APITestCase):
                 "OR",
                 [["string_field", "exact", ""], ["string_field", "isnull", True]],
             ],
-            lambda document: "string_field" in document
-            and not bool(document["string_field"]),
+            lambda document: "string_field" in document and not bool(document["string_field"]),
         )
 
     def test_logical_not(self):
@@ -495,9 +480,7 @@ class TestCustomFieldsSearch(DirectoriesMixin, APITestCase):
                 "NOT",
                 ["string_field", "exact", "paperless"],
             ],
-            lambda document: not (
-                "string_field" in document and document["string_field"] == "paperless"
-            ),
+            lambda document: not ("string_field" in document and document["string_field"] == "paperless"),
         )
 
     # ==========================================================#

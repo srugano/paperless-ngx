@@ -23,8 +23,7 @@ class CustomAccountAdapter(DefaultAccountAdapter):
         disabled via the ACCOUNT_ALLOW_SIGNUPS setting.
         """
         if (
-            User.objects.exclude(username__in=["consumer", "AnonymousUser"]).count()
-            == 0
+            User.objects.exclude(username__in=["consumer", "AnonymousUser"]).count() == 0
             and Document.global_objects.count() == 0
         ):
             # I.e. a fresh install, allow signups
@@ -68,13 +67,12 @@ class CustomAccountAdapter(DefaultAccountAdapter):
         """
         if settings.PAPERLESS_URL is None:
             return super().get_reset_password_from_key_url(key)
-        else:
-            path = reverse(
-                "account_reset_password_from_key",
-                kwargs={"uidb36": "UID", "key": "KEY"},
-            )
-            path = path.replace("UID-KEY", quote(key))
-            return settings.PAPERLESS_URL + path
+        path = reverse(
+            "account_reset_password_from_key",
+            kwargs={"uidb36": "UID", "key": "KEY"},
+        )
+        path = path.replace("UID-KEY", quote(key))
+        return settings.PAPERLESS_URL + path
 
     def save_user(self, request, user, form, commit=True):  # noqa: FBT002
         """
@@ -83,8 +81,7 @@ class CustomAccountAdapter(DefaultAccountAdapter):
         """
 
         if (
-            User.objects.exclude(username__in=["consumer", "AnonymousUser"]).count()
-            == 0
+            User.objects.exclude(username__in=["consumer", "AnonymousUser"]).count() == 0
             and Document.global_objects.count() == 0
         ):
             # I.e. a fresh install, make the user a superuser
@@ -117,8 +114,7 @@ class CustomSocialAccountAdapter(DefaultSocialAccountAdapter):
         Returns the default URL to redirect to after successfully
         connecting a social account.
         """
-        url = reverse("base")
-        return url
+        return reverse("base")
 
     def save_user(self, request, sociallogin, form=None):
         """

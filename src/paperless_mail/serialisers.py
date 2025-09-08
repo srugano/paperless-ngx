@@ -44,10 +44,7 @@ class MailAccountSerializer(OwnedObjectSerializer):
         ]
 
     def update(self, instance, validated_data):
-        if (
-            "password" in validated_data
-            and len(validated_data.get("password").replace("*", "")) == 0
-        ):
+        if "password" in validated_data and len(validated_data.get("password").replace("*", "")) == 0:
             validated_data.pop("password")
         super().update(instance, validated_data)
         return instance
@@ -118,10 +115,7 @@ class MailRuleSerializer(OwnedObjectSerializer):
         action = attrs.get("action")
         action_parameter = attrs.get("action_parameter")
 
-        if (
-            action in [MailRule.MailAction.TAG, MailRule.MailAction.MOVE]
-            and not action_parameter
-        ):
+        if action in [MailRule.MailAction.TAG, MailRule.MailAction.MOVE] and not action_parameter:
             raise serializers.ValidationError("An action parameter is required.")
 
         return attrs

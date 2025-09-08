@@ -81,8 +81,7 @@ def get_default_file_extension(mime_type: str) -> str:
     ext = mimetypes.guess_extension(mime_type)
     if ext:
         return ext
-    else:
-        return ""
+    return ""
 
 
 @lru_cache(maxsize=8)
@@ -93,8 +92,7 @@ def is_file_ext_supported(ext: str) -> bool:
     """
     if ext:
         return ext.lower() in get_supported_file_extensions()
-    else:
-        return False
+    return False
 
 
 def get_supported_file_extensions() -> set[str]:
